@@ -196,6 +196,8 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 1200;
             break;
         case "none":
+            $total_load += 0;
+            break;
         default:
             $total_load += 0;
             break;
@@ -207,6 +209,8 @@ if(isset($_POST['infloor_heat'])) {
 
     switch($stove_type) {
         case "electric":
+            $total_load += 12000;
+            break;
         case "induction":
             $total_load += 12000;
             break;
@@ -214,6 +218,8 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 600;
             break;
         case "none":
+            $total_load += 0;
+            break;
         default:
             $total_load += 0;
             break;
@@ -282,7 +288,7 @@ if($message) {
 <br>
 
 <label for="clothes_dryer">Clothes Dryer Type:</label>
-<select name="clothes_dryer id="clothes_dryer">
+<select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
     <option value="provided_clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
@@ -291,10 +297,33 @@ if($message) {
 <input type="number" name="provided_clothes_dryer_wattage" id="provided_clothes_dryer_wattage" style="display: none;">
 <br>
 
-    <label for="ac">Do you have Air Conditioning?</label>
-    <input type="checkbox" id="ac_checkbox" name="ac" value="yes"> Yes<br>
-    <label for="ac_wattage" id="ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
-    <input type="number" id="ac_wattage" name="provided_ac_wattage" style="display:none;"><br>
+<label for="stove">Stove:</label>
+<select name="stove" id="stove">
+    <option value="gas">Gas</option>
+    <option value="electric">Electric</option>
+    <option value="provided_stove_wattage">I'll provide my stove wattage:</option>
+</select>
+<!-- Input field for user-entered wattage -->
+<input type="number" name="provided_stove_wattage" id="provided_stove_wattage" style="display: none;">
+<br>
+
+<label>Do you have Air Conditioning?</label>
+<input type="radio" id="ac_yes" name="ac" value="yes" onclick="toggleACInput(true)">
+<label for="ac_yes">Yes</label>
+<input type="radio" id="ac_no" name="ac" value="no" onclick="toggleACInput(false)" checked>
+<label for="ac_no">No</label><br>
+
+<label for="ac_wattage" id="ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
+<input type="number" id="ac_wattage" name="provided_ac_wattage" style="display:none;"><br>
+
+<script type="text/javascript">
+    function toggleACInput(show) {
+        document.getElementById('ac_wattage_label').style.display = show ? 'inline-block' : 'none';
+        document.getElementById('ac_wattage').style.display = show ? 'inline-block' : 'none';
+    }
+</script>
+
+
 
     <label for="dishwasher">Do you have a dishwasher?</label>
     <input type="checkbox" id="dishwasher_checkbox" name="dishwasher" value="yes"> Yes<br>

@@ -5,6 +5,7 @@ Description: A plugin to calculate the electrical load for adding an EV charger.
 Version: 1.0
 Author: Andrew Baituk
 */
+
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
     wp_enqueue_script('evaa-calculator', plugin_dir_url(__FILE__) . 'evaa-load-calculator.js', array('jquery'), '1.0.0', true);
@@ -12,20 +13,11 @@ function evaa_load_calculator_scripts() {
 add_action('wp_enqueue_scripts', 'evaa_load_calculator_scripts');
 
 
-
-
 //short code
 function load_calculator_form_shortcode() {
     ob_start(); // Start output buffering
 
-    // Your nonce verification and redirection
-    if( isset($_POST['submit']) ) {
-        // ...
-        echo "Form submitted!";
-        wp_redirect( get_permalink() );
-        exit;
-    }
-    
+
 
 
 // Initialize variables with default values
@@ -42,20 +34,19 @@ if (isset($_POST['home_size'])) {
 }
 
 
-
 $total_load = 0;
 $message = "";
 
 // If the form has been submitted
 if(isset($_POST['submit'])) {
 
-            // Service Panel Capacity in Amps
-        $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
-        
-        // Convert to Watts (assuming 240V)
-        $panel_capacity = $panel_capacity_amps * 240;
-        
- 
+    // Service Panel Capacity in Amps
+$panel_capacity_amps = intval($_POST['panel_capacity_amps']);
+
+// Convert to Watts (assuming 240V)
+$panel_capacity = $panel_capacity_amps * 240;
+
+
 
 // Convert home size to m² and sqft
 $home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
@@ -63,13 +54,11 @@ $home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;
 
 // Living Area load calculation based on m²
 if($home_size_m2 <= 90) {
-    $total_load += 5000;
+$total_load += 5000;
 } else {
-    $total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
+$total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
 }
     
-    
-
 // Heating
 $heating_type = $_POST['heating'];
 switch($heating_type) {
@@ -207,6 +196,8 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 1200;
             break;
         case "none":
+            $total_load += 0;
+            break;
         default:
             $total_load += 0;
             break;
@@ -218,6 +209,8 @@ if(isset($_POST['infloor_heat'])) {
 
     switch($stove_type) {
         case "electric":
+            $total_load += 12000;
+            break;
         case "induction":
             $total_load += 12000;
             break;
@@ -225,12 +218,12 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 600;
             break;
         case "none":
+            $total_load += 0;
+            break;
         default:
             $total_load += 0;
             break;
     }
-    
-
     // Other appliances and features...
     // ...
 
@@ -256,13 +249,13 @@ if($message) {
 }
 
 // Your HTML form
-    ?>
+?>
 <form action="" method="post">
    
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
     <input type="number" name="panel_capacity_amps" required><br>
 
-    <label for="home_size">Approx size of home:</label>
+    <label for="home_size">Approx size of home (developed/livable area):</label>
     <input type="number" name="home_size" required>
     <select name="home_size_unit">
         <option value="sqft">sq ft</option>
@@ -294,10 +287,43 @@ if($message) {
 <input type="number" name="provided_water_heater_wattage" id="provided_water_heater_wattage" style="display: none;">
 <br>
 
-    <label for="ac">Do you have Air Conditioning?</label>
-    <input type="checkbox" id="ac_checkbox" name="ac" value="yes"> Yes<br>
-    <label for="ac_wattage" id="ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
-    <input type="number" id="ac_wattage" name="provided_ac_wattage" style="display:none;"><br>
+<label for="clothes_dryer">Clothes Dryer Type:</label>
+<select name="clothes_dryer" id="clothes_dryer">
+    <option value="gas">Gas</option>
+    <option value="electric">Electric</option>
+    <option value="provided_clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
+</select>
+<!-- Input field for user-entered wattage -->
+<input type="number" name="provided_clothes_dryer_wattage" id="provided_clothes_dryer_wattage" style="display: none;">
+<br>
+
+<label for="stove">Stove:</label>
+<select name="stove" id="stove">
+    <option value="gas">Gas</option>
+    <option value="electric">Electric</option>
+    <option value="provided_stove_wattage">I'll provide my stove wattage:</option>
+</select>
+<!-- Input field for user-entered wattage -->
+<input type="number" name="provided_stove_wattage" id="provided_stove_wattage" style="display: none;">
+<br>
+
+<label>Do you have Air Conditioning?</label>
+<input type="radio" id="ac_yes" name="ac" value="yes" onclick="toggleACInput(true)">
+<label for="ac_yes">Yes</label>
+<input type="radio" id="ac_no" name="ac" value="no" onclick="toggleACInput(false)" checked>
+<label for="ac_no">No</label><br>
+
+<label for="ac_wattage" id="ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
+<input type="number" id="ac_wattage" name="provided_ac_wattage" style="display:none;"><br>
+
+<script type="text/javascript">
+    function toggleACInput(show) {
+        document.getElementById('ac_wattage_label').style.display = show ? 'inline-block' : 'none';
+        document.getElementById('ac_wattage').style.display = show ? 'inline-block' : 'none';
+    }
+</script>
+
+
 
     <label for="dishwasher">Do you have a dishwasher?</label>
     <input type="checkbox" id="dishwasher_checkbox" name="dishwasher" value="yes"> Yes<br>
@@ -309,7 +335,7 @@ if($message) {
     <label for="hottub_wattage" id="hottub_wattage_label" style="display:none;">Hottub Wattage (if known) <otherwise using 12000W>:</label>
     <input type="number" id="hottub_wattage" name="provided_hottub_wattage" style="display:none;"><br>
 
-    <label for="infloor_heat">Do you have a infloor heating?</label>
+    <label for="infloor_heat">Do you have electric infloor heating?</label>
     <input type="checkbox" id="infloor_heat_checkbox" name="infloor_heat" value="yes"> Yes<br>
     <label for="infloor_heat_wattage" id="infloor_heat_wattage_label" style="display:none;">Infloor Heating Wattage (if known) <otherwise using 1800W>:</label>
     <input type="number" id="infloor_heat_wattage" name="provided_infloor_heat_wattage" style="display:none;"><br>

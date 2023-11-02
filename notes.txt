@@ -1,0 +1,56 @@
+Heating & Cooling
+1. Gas Furnace (Blower): 5-8 amps
+2. Electric Furnace: 60-80 amps
+3. Air Source Heat Pump: 15-40 amps
+4. Boiler Systems: 15-30 amps
+5. Wood-Burning Stove/Fireplace (Blower): 5-8 amps
+6. Geothermal Heat Pump: 5-10 amps (mostly for circulating pumps)
+
+7. Air Conditioning: 15-20 amps
+
+Water Heating
+1. Gas Water Heater (ignition and controls): 3-5 amps
+2. Electric Water Heater: 16-25 amps
+3. Instant (Tankless) Water Heater: 30-50 amps
+Laundry
+1. Clothes Dryer (Electric): 20-30 amps
+2. Clothes Dryer (Gas - ignition and controls): 3-6 amps
+Kitchen Appliances
+1. Gas Stove (ignition and controls): 3-5 amps
+2. Electric Stove: 40-50 amps (can vary based on usage)
+3. Induction Stove: 30-40 amps
+4. Dishwasher: 10-15 amps
+Others
+1. Hot Tub: 30-50 amps (depends on the size and number of pumps)
+2. Swimming Pool Pump: 6-15 amps
+3. In-Floor Heating: 10-15 amps per circuit (may have multiple circuits)
+
+
+
+
+
+Common Home Heating Types in Alberta
+4. Gas Furnace: Most common and would be one of your main options.
+5. Electric Furnace: Less common but still possible.
+6. Boiler Systems: For homes with radiators or in-floor heating.
+7. Wood-Burning Stove/Fireplace: Some homes use these as a supplementary heating source.
+8. Geothermal Heat Pump: Rare but used in some modern, eco-friendly homes.
+Revised Questions
+9. How do you heat your home?
+	• Options: Gas Furnace, Electric Furnace, Air Source Heat Pump, Boiler Systems, Wood-Burning Stove/Fireplace, Geothermal Heat Pump, Other
+10. Do you have AC?
+	• Options: Yes, No
+11. Water Heater
+	• Options: Gas, Electric, Instant
+12. Do you have a clothes dryer?
+	• Options: Yes, No
+13. What type of stove do you have?
+	• Options: Gas, Electric, Induction, None, Other
+14. Do you have a dishwasher?
+	• Options: Yes, No
+15. Do you have a hot tub or pool?
+	• Options: Hot Tub, Pool, Both, Neither
+16. Do you have in-floor heating?
+	• Options: Yes, No
+
+
