@@ -21,7 +21,7 @@ function load_calculator_form_shortcode() {
 
 
 // Initialize variables with default values
-$home_size_unit = "default_unit"; // Replace 'default_unit' with whatever default value you deem appropriate
+$home_size_unit = "sqft"; // Replace 'default_unit' with whatever default value you deem appropriate
 $home_size = 0; // Default to 0, or any other appropriate value
 
 // Check if the keys exist in the $_POST data and assign them
