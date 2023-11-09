@@ -46,11 +46,14 @@ $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
 // Convert to Watts (assuming 240V)
 $panel_capacity = $panel_capacity_amps * 240;
 
-
+echo "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
 
 // Convert home size to m² and sqft
 $home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
 $home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;
+
+echo "Converted Home Size in m2: " . $home_size_m2 . " m2<br>";
+echo "Converted Home Size in sqft: " . $home_size_sqft . " sqft<br>";
 
 // Living Area load calculation based on m²
 if($home_size_m2 <= 90) {
@@ -58,7 +61,13 @@ $total_load += 5000;
 } else {
 $total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
 }
-    
+  
+echo "Base Living Area Load: 5000W<br>";
+echo "Additional Living Area Load: " . ($total_load - 5000) . "W<br>";
+echo "Total Living Area Load: " . $total_load . "W<br>";
+
+// Before heating calculation
+echo "Load before heating calculation: " . $total_load . "W<br>";
 // Heating
 $heating_type = $_POST['heating'];
 switch($heating_type) {
@@ -111,19 +120,27 @@ switch($heating_type) {
 
         
 }
+// After heating calculation
+echo "Load after heating calculation: " . $total_load . "W<br>";
+
+echo "Load before AC calculation: " . $total_load . "W<br>";
 
 
-// AC
-if(isset($_POST['ac'])) {
+// AC calculation
+if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
+    // If AC wattage is provided by user, use that; otherwise, use default
     if (isset($_POST['ac_wattage']) && !empty($_POST['ac_wattage'])) {
         $ac_wattage = intval($_POST['ac_wattage']);
     } else {
-        $ac_wattage = 3500; // default value
+        $ac_wattage = 3500; // Default AC wattage
     }
     $total_load += $ac_wattage;
 }
-// dishwasher
 
+echo "Load after AC calculation: " . $total_load . "W<br>";
+
+// dishwasher
+echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
 if(isset($_POST['dishwasher'])) {
     if (isset($_POST['dishwasher_wattage']) && !empty($_POST['dishwasher_wattage'])) {
         $dishwasher_wattage = intval($_POST['dishwasher_wattage']);
@@ -132,7 +149,8 @@ if(isset($_POST['dishwasher'])) {
     }
     $total_load += $dishwasher_wattage;
 }
-
+echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
+echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
 // hottub
 if(isset($_POST['hottub'])) {
     if (isset($_POST['hottub_wattage']) && !empty($_POST['hottub_wattage'])) {
@@ -142,7 +160,8 @@ if(isset($_POST['hottub'])) {
     }
     $total_load += $hottub_wattage;
 }
-
+echo "Load after Hot Tub calculation: " . $total_load . "W<br>";
+echo "Load before Infloor Heating calculation: " . $total_load . "W<br>";
 // infloor_heat
 if(isset($_POST['infloor_heat'])) {
     if (isset($_POST['infloor_heat_wattage']) && !empty($_POST['infloor_heat_wattage'])) {
@@ -152,10 +171,10 @@ if(isset($_POST['infloor_heat'])) {
     }
     $total_load += $infloor_heat_wattage;
 }
+echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
 
 
-
-
+echo "Load before Water Heater calculation: " . $total_load . "W<br>";
 
     // Water Heater
 
@@ -173,7 +192,7 @@ if(isset($_POST['infloor_heat'])) {
             break;
         case "user_input":
             // Check if the user provided a custom wattage
-            if (isset($_POST['user_entered_wattage']) && !empty($_POST['user_entered_wattage'])) {
+            if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
                 // Convert and add the user-entered wattage to the total load
                 $user_entered_wattage = intval($_POST['user_entered_wattage']);
                 $total_load += $user_entered_wattage;
@@ -183,8 +202,8 @@ if(isset($_POST['infloor_heat'])) {
             break;
     }
     
-    
-
+    echo "Load after Water Heater calculation: " . $total_load . "W<br>";
+    echo "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
     // Clothes Dryer
     $clothes_dryer_type = $_POST['clothes_dryer'];
 
@@ -202,7 +221,8 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 0;
             break;
     }
-    
+    echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
+    echo "Load before Stove calculation: " . $total_load . "W<br>";
 
     // Stove
     $stove_type = $_POST['stove'];
@@ -224,11 +244,16 @@ if(isset($_POST['infloor_heat'])) {
             $total_load += 0;
             break;
     }
+    echo "Load after Stove calculation: " . $total_load . "W<br>";
     // Other appliances and features...
     // ...
 
     // Calculate remaining capacity
     $remaining_capacity = $panel_capacity - $total_load;
+
+echo "Panel Capacity: " . $panel_capacity . "W<br>";
+echo "Total Load: " . $total_load . "W<br>";
+echo "Remaining Capacity: " . $remaining_capacity . "W<br>";
 
     // EV Charger Load (placeholder value)
     $ev_charger_load = 7000; // Replace with the typical load of the EV charger you're considering
