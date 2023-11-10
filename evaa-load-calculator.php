@@ -345,9 +345,23 @@ if($message) {
 
 <script type="text/javascript">
     function toggleACInput(show) {
-        document.getElementById('ac_wattage_label').style.display = show ? 'inline-block' : 'none';
-        document.getElementById('ac_wattage').style.display = show ? 'inline-block' : 'none';
+        var acLabel = document.getElementById('user_provided_ac_wattage_label');
+        var acInput = document.getElementById('user_provided_ac_wattage');
+
+        if (show) {
+            acLabel.style.display = 'inline-block';
+            acInput.style.display = 'inline-block';
+        } else {
+            acLabel.style.display = 'none';
+            acInput.style.display = 'none';
+        }
     }
+
+    // Attach the event listener to the "Yes" radio button
+    var acYesRadio = document.getElementById('ac_yes');
+    acYesRadio.addEventListener('click', function() {
+        toggleACInput(true);
+    });
 </script>
 
 
