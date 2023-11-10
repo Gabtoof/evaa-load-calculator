@@ -299,7 +299,7 @@ if($message) {
         <option value="boiler">Boiler System</option>
         <option value="heating_watt">I'll provide my heating wattage:</option>
         <!-- Input field for heating wattage -->
-        <input type="number" name="user_provided_heating_wattage" id="user_provided__heating_wattage" style="display: none;">
+        <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
     </select>
     <br>
 
@@ -308,7 +308,7 @@ if($message) {
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
     <option value="tankless">Tankless</option>
-    <option value="water_heater_wattage">I'll provide my water heater wattage:</option>
+    <option value="user_provided_water_heater_wattage">I'll provide my water heater wattage:</option>
 </select>
 <!-- Input field for user-entered wattage -->
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
@@ -318,7 +318,7 @@ if($message) {
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
+    <option value="user_provided_clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
 <input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage" style="display: none;"><br>

@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (clothesDryerDropdown) {
         clothesDryerDropdown.addEventListener('change', function() {
             var wattageInput = document.getElementById('user_provided_clothes_dryer_wattage');
-            if (this.value === 'user_provided_clothes_dryer_wattage') {
+            if (this.value === 'clothes_dryer_wattage') {
                 wattageInput.style.display = 'inline-block';
             } else {
                 wattageInput.style.display = 'none';
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (stoveDropdown) {
         stoveDropdown.addEventListener('change', function() {
             var wattageInput = document.getElementById('user_provided_stove_wattage');
-            if (this.value === 'user_provided_stove_wattage') {
+            if (this.value === 'stove_wattage') {
                 wattageInput.style.display = 'inline-block';
             } else {
                 wattageInput.style.display = 'none';
