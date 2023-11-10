@@ -217,7 +217,7 @@ switch($clothes_dryer_type) {
     case "gas":
         $total_load += 1200; // Default wattage for gas clothes dryer
         break;
-    case "user_provided_clothes_dryer_wattage":
+    case "clothes_dryer_wattage":
         if (isset($_POST['user_provided_clothes_dryer_wattage']) && !empty($_POST['user_provided_clothes_dryer_wattage'])) {
             $total_load += intval($_POST['user_provided_clothes_dryer_wattage']);
         }
@@ -236,7 +236,7 @@ switch($stove_type) {
     case "electric":
         $total_load += 5000; // Default wattage for electric stove
         break;
-    case "user_provided_stove_wattage":
+    case "stove_wattage":
         if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
             $total_load += intval($_POST['user_provided_stove_wattage']);
         }
@@ -318,7 +318,7 @@ if($message) {
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="user_provided_clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
+    <option value="clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
 <input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage" style="display: none;"><br>
