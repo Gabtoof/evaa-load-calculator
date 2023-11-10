@@ -190,7 +190,7 @@ switch($water_heater_type) {
     case "tankless":
         $total_load += 12000; // Default wattage for tankless water heater
         break;
-    case "user_provided_water_heater_wattage": // This case should match the value attribute from the HTML select option
+    case "water_heater_wattage": // This case should match the value attribute from the HTML select option
         // Check if the user provided a custom wattage
         if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
             // Convert and add the user-entered wattage to the total load
@@ -308,7 +308,7 @@ if($message) {
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
     <option value="tankless">Tankless</option>
-    <option value="user_provided_water_heater_wattage">I'll provide my water heater wattage:</option>
+    <option value="water_heater_wattage">I'll provide my water heater wattage:</option>
 </select>
 <!-- Input field for user-entered wattage -->
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">

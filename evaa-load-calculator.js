@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (waterHeaterDropdown) {
         waterHeaterDropdown.addEventListener('change', function() {
             var wattageInput = document.getElementById('user_provided_water_heater_wattage');
-            if (this.value === 'user_provided_water_heater_wattage') {
+            if (this.value === 'water_heater_wattage') {
                 wattageInput.style.display = 'inline-block';
             } else {
                 wattageInput.style.display = 'none';
