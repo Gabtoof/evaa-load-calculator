@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var heatingDropdown = document.getElementById('heating');
     if (heatingDropdown) {
         heatingDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('provided_heating_wattage');
+            var wattageInput = document.getElementById('user_provided_heating_wattage');
             if (this.value === 'heating_watt') {
                 wattageInput.style.display = 'inline-block';
             } else {
@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var clothesDryerDropdown = document.getElementById('clothes_dryer');
     if (clothesDryerDropdown) {
         clothesDryerDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('provided_clothes_dryer_wattage');
-            if (this.value === 'provided_clothes_dryer_wattage') {
+            var wattageInput = document.getElementById('user_provided_clothes_dryer_wattage');
+            if (this.value === 'user_provided_clothes_dryer_wattage') {
                 wattageInput.style.display = 'inline-block';
             } else {
                 wattageInput.style.display = 'none';
@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var stoveDropdown = document.getElementById('stove');
     if (stoveDropdown) {
         stoveDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('provided_stove_wattage');
-            if (this.value === 'provided_stove_wattage') {
+            var wattageInput = document.getElementById('user_provided_stove_wattage');
+            if (this.value === 'user_provided_stove_wattage') {
                 wattageInput.style.display = 'inline-block';
             } else {
                 wattageInput.style.display = 'none';
@@ -66,9 +66,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    setupCheckboxListener('ac_checkbox', 'ac_wattage_label', 'ac_wattage');
-    setupCheckboxListener('dishwasher_checkbox', 'dishwasher_wattage_label', 'dishwasher_wattage');
-    setupCheckboxListener('hottub_checkbox', 'hottub_wattage_label', 'hottub_wattage');
-    setupCheckboxListener('infloor_heat_checkbox', 'infloor_heat_wattage_label', 'infloor_heat_wattage');
+    setupCheckboxListener('ac_checkbox', 'ac_wattage_label', 'user_provided_ac_wattage');
+    setupCheckboxListener('dishwasher_checkbox', 'dishwasher_wattage_label', 'user_provided_dishwasher_wattage');
+    setupCheckboxListener('hottub_checkbox', 'hottub_wattage_label', 'user_provided_hottub_wattage');
+    setupCheckboxListener('infloor_heat_checkbox', 'infloor_heat_wattage_label', 'user_provided_infloor_heat_wattage');
     // Add other checkbox listeners here as needed...
 });

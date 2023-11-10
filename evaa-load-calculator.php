@@ -115,7 +115,7 @@ switch($heating_type) {
         }
         break;
     case "heating_watt":
-        $total_load += intval($_POST['provided_heating_wattage']);
+        $total_load += intval($_POST['user_provided_heating_wattage']);
         break;
 
         
@@ -129,8 +129,8 @@ echo "Load before AC calculation: " . $total_load . "W<br>";
 // AC calculation
 if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
     // If AC wattage is provided by user, use that; otherwise, use default
-    if (isset($_POST['ac_wattage']) && !empty($_POST['ac_wattage'])) {
-        $ac_wattage = intval($_POST['ac_wattage']);
+    if (isset($_POST['user_provided_ac_wattage']) && !empty($_POST['user_provided_ac_wattage'])) {
+        $ac_wattage = intval($_POST['user_provided_ac_wattage']);
     } else {
         $ac_wattage = 3500; // Default AC wattage
     }
@@ -142,8 +142,8 @@ echo "Load after AC calculation: " . $total_load . "W<br>";
 // dishwasher
 echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
 if(isset($_POST['dishwasher'])) {
-    if (isset($_POST['dishwasher_wattage']) && !empty($_POST['dishwasher_wattage'])) {
-        $dishwasher_wattage = intval($_POST['dishwasher_wattage']);
+    if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
+        $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
     } else {
         $dishwasher_wattage = 1800; // default value
     }
@@ -153,8 +153,8 @@ echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
 echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
 // hottub
 if(isset($_POST['hottub'])) {
-    if (isset($_POST['hottub_wattage']) && !empty($_POST['hottub_wattage'])) {
-        $hottub_wattage = intval($_POST['hottub_wattage']);
+    if (isset($_POST['user_provided_hottub_wattage']) && !empty($_POST['user_provided_hottub_wattage'])) {
+        $hottub_wattage = intval($_POST['user_provided_hottub_wattage']);
     } else {
         $hottub_wattage = 12000; // default value
     }
@@ -164,8 +164,8 @@ echo "Load after Hot Tub calculation: " . $total_load . "W<br>";
 echo "Load before Infloor Heating calculation: " . $total_load . "W<br>";
 // infloor_heat
 if(isset($_POST['infloor_heat'])) {
-    if (isset($_POST['infloor_heat_wattage']) && !empty($_POST['infloor_heat_wattage'])) {
-        $infloor_heat_wattage = intval($_POST['infloor_heat_wattage']);
+    if (isset($_POST['user_provided_infloor_heat_wattage']) && !empty($_POST['user_provided_infloor_heat_wattage'])) {
+        $infloor_heat_wattage = intval($_POST['user_provided_infloor_heat_wattage']);
     } else {
         $infloor_heat_wattage = 1800; // default value
     }
@@ -174,77 +174,79 @@ if(isset($_POST['infloor_heat'])) {
 echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
 
 
+
 echo "Load before Water Heater calculation: " . $total_load . "W<br>";
 
-    // Water Heater
+// Water Heater
+$water_heater_type = $_POST['water_heater'];
 
-    $water_heater_type = $_POST['water_heater'];
+switch($water_heater_type) {
+    case "electric":
+        $total_load += 4500; // Default wattage for electric water heater
+        break;
+    case "gas":
+        $total_load += 600; // Default wattage for gas water heater
+        break;
+    case "tankless":
+        $total_load += 12000; // Default wattage for tankless water heater
+        break;
+    case "user_provided_water_heater_wattage": // This case should match the value attribute from the HTML select option
+        // Check if the user provided a custom wattage
+        if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
+            // Convert and add the user-entered wattage to the total load
+            $user_provided_wattage = intval($_POST['user_provided_water_heater_wattage']); // Make sure this variable name is consistent
+            $total_load += $user_provided_wattage;
+        }
+        break;
+    default:
+        // Optionally handle unexpected cases
+        break;
+}
 
-    switch($water_heater_type) {
-        case "electric":
-            $total_load += 4500; // Default wattage for electric water heater
-            break;
-        case "gas":
-            $total_load += 600; // Default wattage for gas water heater
-            break;
-        case "tankless":
-            $total_load += 12000; // Default wattage for tankless water heater
-            break;
-        case "user_input":
-            // Check if the user provided a custom wattage
-            if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
-                // Convert and add the user-entered wattage to the total load
-                $user_entered_wattage = intval($_POST['user_entered_wattage']);
-                $total_load += $user_entered_wattage;
-            }
-            break;
-        default:
-            break;
-    }
-    
-    echo "Load after Water Heater calculation: " . $total_load . "W<br>";
-    echo "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
-    // Clothes Dryer
-    $clothes_dryer_type = $_POST['clothes_dryer'];
+echo "Load after Water Heater calculation: " . $total_load . "W<br>";
 
-    switch($clothes_dryer_type) {
-        case "electric":
-            $total_load += 6000;
-            break;
-        case "gas":
-            $total_load += 1200;
-            break;
-        case "none":
-            $total_load += 0;
-            break;
-        default:
-            $total_load += 0;
-            break;
-    }
-    echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
-    echo "Load before Stove calculation: " . $total_load . "W<br>";
+echo "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
 
-    // Stove
-    $stove_type = $_POST['stove'];
+// Clothes Dryer
+$clothes_dryer_type = $_POST['clothes_dryer'];
 
-    switch($stove_type) {
-        case "electric":
-            $total_load += 12000;
-            break;
-        case "induction":
-            $total_load += 12000;
-            break;
-        case "gas":
-            $total_load += 600;
-            break;
-        case "none":
-            $total_load += 0;
-            break;
-        default:
-            $total_load += 0;
-            break;
-    }
-    echo "Load after Stove calculation: " . $total_load . "W<br>";
+switch($clothes_dryer_type) {
+    case "electric":
+        $total_load += 6000; // Default wattage for electric clothes dryer
+        break;
+    case "gas":
+        $total_load += 1200; // Default wattage for gas clothes dryer
+        break;
+    case "user_provided_clothes_dryer_wattage":
+        if (isset($_POST['user_provided_clothes_dryer_wattage']) && !empty($_POST['user_provided_clothes_dryer_wattage'])) {
+            $total_load += intval($_POST['user_provided_clothes_dryer_wattage']);
+        }
+        break;
+    // Add cases for other types if necessary
+}
+
+echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
+
+echo "Load before Stove calculation: " . $total_load . "W<br>";
+
+// Stove
+$stove_type = $_POST['stove'];
+
+switch($stove_type) {
+    case "electric":
+        $total_load += 5000; // Default wattage for electric stove
+        break;
+    case "user_provided_stove_wattage":
+        if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
+            $total_load += intval($_POST['user_provided_stove_wattage']);
+        }
+        break;
+    // Add cases for other types if necessary
+}
+
+echo "Load after Stove calculation: " . $total_load . "W<br>";
+
+
     // Other appliances and features...
     // ...
 
@@ -297,7 +299,7 @@ if($message) {
         <option value="boiler">Boiler System</option>
         <option value="heating_watt">I'll provide my heating wattage:</option>
         <!-- Input field for heating wattage -->
-        <input type="number" name="provided_heating_wattage" id="provided_heating_wattage" style="display: none;">
+        <input type="number" name="user_provided_heating_wattage" id="user_provided__heating_wattage" style="display: none;">
     </select>
     <br>
 
@@ -306,30 +308,30 @@ if($message) {
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
     <option value="tankless">Tankless</option>
-    <option value="provided_water_heater_wattage">I'll provide my water heater wattage:</option>
+    <option value="water_heater_wattage">I'll provide my water heater wattage:</option>
 </select>
 <!-- Input field for user-entered wattage -->
-<input type="number" name="provided_water_heater_wattage" id="provided_water_heater_wattage" style="display: none;">
+<input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
 <br>
 
 <label for="clothes_dryer">Clothes Dryer Type:</label>
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="provided_clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
+    <option value="clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
 </select>
-<!-- Input field for user-entered wattage -->
-<input type="number" name="provided_clothes_dryer_wattage" id="provided_clothes_dryer_wattage" style="display: none;">
-<br>
+<!-- Input field for user-provided clothes dryer wattage -->
+<input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage" style="display: none;"><br>
 
 <label for="stove">Stove:</label>
 <select name="stove" id="stove">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="provided_stove_wattage">I'll provide my stove wattage:</option>
+    <option value="stove_wattage">I'll provide my stove wattage:</option>
 </select>
-<!-- Input field for user-entered wattage -->
-<input type="number" name="provided_stove_wattage" id="provided_stove_wattage" style="display: none;">
+<!-- Input field for user-provided stove wattage -->
+<input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="display: none;"><br>
+
 <br>
 
 <label>Do you have Air Conditioning?</label>
@@ -338,8 +340,8 @@ if($message) {
 <input type="radio" id="ac_no" name="ac" value="no" onclick="toggleACInput(false)" checked>
 <label for="ac_no">No</label><br>
 
-<label for="ac_wattage" id="ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
-<input type="number" id="ac_wattage" name="provided_ac_wattage" style="display:none;"><br>
+<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
+<input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;"><br>
 
 <script type="text/javascript">
     function toggleACInput(show) {
@@ -353,17 +355,17 @@ if($message) {
     <label for="dishwasher">Do you have a dishwasher?</label>
     <input type="checkbox" id="dishwasher_checkbox" name="dishwasher" value="yes"> Yes<br>
     <label for="dishwasher_wattage" id="dishwasher_wattage_label" style="display:none;">Dishwasher Wattage (if known) <otherwise using 1800W>:</label>
-    <input type="number" id="dishwasher_wattage" name="provided_dishwasher_wattage" style="display:none;"><br>
+    <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;"><br>
 
     <label for="hottub">Do you have a hottub?</label>
     <input type="checkbox" id="hottub_checkbox" name="hottub" value="yes"> Yes<br>
     <label for="hottub_wattage" id="hottub_wattage_label" style="display:none;">Hottub Wattage (if known) <otherwise using 12000W>:</label>
-    <input type="number" id="hottub_wattage" name="provided_hottub_wattage" style="display:none;"><br>
+    <input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;"><br>
 
     <label for="infloor_heat">Do you have electric infloor heating?</label>
     <input type="checkbox" id="infloor_heat_checkbox" name="infloor_heat" value="yes"> Yes<br>
     <label for="infloor_heat_wattage" id="infloor_heat_wattage_label" style="display:none;">Infloor Heating Wattage (if known) <otherwise using 1800W>:</label>
-    <input type="number" id="infloor_heat_wattage" name="provided_infloor_heat_wattage" style="display:none;"><br>
+    <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;"><br>
 
    
     <br>
