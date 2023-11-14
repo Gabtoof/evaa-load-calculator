@@ -1,74 +1,73 @@
+console.log('JavaScript file is loaded');
+
+// Define toggleInputDisplay function globally
+function toggleInputDisplay(inputId, shouldBeVisible) {
+    var input = document.getElementById(inputId);
+    var label = document.querySelector('label[for="' + inputId + '"]');
+    if (input && label) {
+        input.style.display = shouldBeVisible ? 'block' : 'none';
+        label.style.display = shouldBeVisible ? 'block' : 'none';
+    }
+}
+
+// Function to toggle input visibility for a specific dropdown
+function toggleDropdownInputVisibility(dropdownId) {
+    var dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
+        var inputId = 'user_provided_' + dropdownId + '_wattage';
+        var shouldBeVisible = dropdown.value === dropdownId + '_wattage';
+        toggleInputDisplay(inputId, shouldBeVisible);
+    }
+}
+
+function setupDropdownListener(dropdownId) {
+    var dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
+        dropdown.addEventListener('change', function() {
+            console.log('Selected value: ', this.value);
+            toggleDropdownInputVisibility(dropdownId);
+        });
+    }
+}
+
+function setupRadioListeners(radioName) {
+    var radios = document.querySelectorAll('input[name="' + radioName + '"]');
+    radios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            var inputId = 'user_provided_' + radioName + '_wattage';
+            var shouldBeVisible = radio.value === 'yes';
+            toggleInputDisplay(inputId, shouldBeVisible);
+        });
+    });
+}
+
+// Function to toggle input visibility for a specific toggle
+function setupToggleListener(toggleId, targetInputId) {
+    var toggle = document.getElementById(toggleId);
+    if (toggle) {
+        toggle.addEventListener('change', function() {
+            toggleInputDisplay(targetInputId, toggle.checked);
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    var heatingDropdown = document.getElementById('heating');
-    if (heatingDropdown) {
-        heatingDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('user_provided_heating_wattage');
-            if (this.value === 'heating_watt') {
-                wattageInput.style.display = 'inline-block';
-            } else {
-                wattageInput.style.display = 'none';
-            }
-        });
-    }
+    // Setup listeners for dropdown menus
+    ['heating', 'water_heater', 'clothes_dryer', 'stove'].forEach(function(feature) {
+        console.log('Calling setupDropdownListener for ' + feature);
+        setupDropdownListener(feature);
+    });
 
-    
+    // Setup listeners for radio button groups
+    ['ac', 'dishwasher', 'hottub', 'infloor_heat'].forEach(function(feature) {
+        setupRadioListeners(feature);
+        // Initial visibility setup based on the selected radio button
+        var isChecked = document.querySelector('input[name="' + feature + '"]:checked').value === 'yes';
+        toggleInputDisplay('user_provided_' + feature + '_wattage', isChecked);
+    });
 
-    var waterHeaterDropdown = document.getElementById('water_heater');
-    if (waterHeaterDropdown) {
-        waterHeaterDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('user_provided_water_heater_wattage');
-            if (this.value === 'water_heater_wattage') {
-                wattageInput.style.display = 'inline-block';
-            } else {
-                wattageInput.style.display = 'none';
-            }
-        });
-    }
-    // Added listener for Clothes Dryer dropdown
-    var clothesDryerDropdown = document.getElementById('clothes_dryer');
-    if (clothesDryerDropdown) {
-        clothesDryerDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('user_provided_clothes_dryer_wattage');
-            if (this.value === 'clothes_dryer_wattage') {
-                wattageInput.style.display = 'inline-block';
-            } else {
-                wattageInput.style.display = 'none';
-            }
-        });
-    }
-    // Added listener for Stove dropdown
-    var stoveDropdown = document.getElementById('stove');
-    if (stoveDropdown) {
-        stoveDropdown.addEventListener('change', function() {
-            var wattageInput = document.getElementById('user_provided_stove_wattage');
-            if (this.value === 'stove_wattage') {
-                wattageInput.style.display = 'inline-block';
-            } else {
-                wattageInput.style.display = 'none';
-            }
-        });
-    }
-    function setupCheckboxListener(checkboxId, labelId, inputId) {
-        var checkbox = document.getElementById(checkboxId);
-        var input = document.getElementById(inputId);
-        var label = document.getElementById(labelId);
-
-        if (checkbox) {
-            checkbox.addEventListener('change', function() {
-                if (this.checked) {
-                    input.style.display = 'inline-block';
-                    label.style.display = 'inline-block';
-                } else {
-                    input.style.display = 'none';
-                    label.style.display = 'none';
-                }
-            });
-        }
-    }
-
-    setupCheckboxListener('ac_checkbox', 'ac_wattage_label', 'user_provided_ac_wattage');
-    setupCheckboxListener('dishwasher_checkbox', 'dishwasher_wattage_label', 'user_provided_dishwasher_wattage');
-    setupCheckboxListener('hottub_checkbox', 'hottub_wattage_label', 'user_provided_hottub_wattage');
-    setupCheckboxListener('infloor_heat_checkbox', 'infloor_heat_wattage_label', 'user_provided_infloor_heat_wattage');
-    // Add other checkbox listeners here as needed...
+    // Setup listeners for toggle switches
+    ['toggle1', 'toggle2', 'toggle3'].forEach(function(toggleId) {
+        setupToggleListener(toggleId, 'user_provided_' + toggleId + '_wattage');
+    });
 });

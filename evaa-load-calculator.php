@@ -8,7 +8,16 @@ Author: Andrew Baituk
 
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
-    wp_enqueue_script('evaa-calculator', plugin_dir_url(__FILE__) . 'evaa-load-calculator.js', array('jquery'), '1.0.0', true);
+    // Use the WordPress built-in script versioning for cache-busting
+    $version = wp_get_theme()->get('Version');
+
+    wp_enqueue_script(
+        'evaa-calculator',
+        plugin_dir_url(__FILE__) . 'evaa-load-calculator.js',
+        array('jquery'), // Dependencies
+       // $version, // Version number for cache busting
+        true // Load in footer
+    );
 }
 add_action('wp_enqueue_scripts', 'evaa_load_calculator_scripts');
 
@@ -280,10 +289,10 @@ if($message) {
 <form action="" method="post">
    
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
-    <input type="number" name="panel_capacity_amps" required><br>
+    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" required><br>
 
     <label for="home_size">Approx size of home (developed/livable area):</label>
-    <input type="number" name="home_size" required>
+    <input type="number" id="home_size" name="home_size" required>
     <select name="home_size_unit">
         <option value="sqft">sq ft</option>
         <option value="m2">m²</option>
@@ -297,7 +306,7 @@ if($message) {
         <option value="air_heat_pump">Air Source Heat Pump</option>
         <option value="geo_heat_pump">Geothermal Heat Pump</option>
         <option value="boiler">Boiler System</option>
-        <option value="heating_watt">I'll provide my heating wattage:</option>
+        <option value="heating_wattage">I'll provide my heating wattage:</option>
         <!-- Input field for heating wattage -->
         <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
     </select>
@@ -334,52 +343,46 @@ if($message) {
 
 <br>
 
-<label>Do you have Air Conditioning?</label>
-<input type="radio" id="ac_yes" name="ac" value="yes" onclick="toggleACInput(true)">
+<label for="ac_yes">Do you have Air Conditioning?</label>
+<input type="radio" id="ac_yes" name="ac" value="yes" >
 <label for="ac_yes">Yes</label>
-<input type="radio" id="ac_no" name="ac" value="no" onclick="toggleACInput(false)" checked>
+<input type="radio" id="ac_no" name="ac" value="no"  checked>
 <label for="ac_no">No</label><br>
 
 <label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
 <input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;"><br>
 
-<script type="text/javascript">
-    function toggleACInput(show) {
-        var acLabel = document.getElementById('user_provided_ac_wattage_label');
-        var acInput = document.getElementById('user_provided_ac_wattage');
-
-        if (show) {
-            acLabel.style.display = 'inline-block';
-            acInput.style.display = 'inline-block';
-        } else {
-            acLabel.style.display = 'none';
-            acInput.style.display = 'none';
-        }
-    }
-
-    // Attach the event listener to the "Yes" radio button
-    var acYesRadio = document.getElementById('ac_yes');
-    acYesRadio.addEventListener('click', function() {
-        toggleACInput(true);
-    });
-</script>
 
 
 
-    <label for="dishwasher">Do you have a dishwasher?</label>
-    <input type="checkbox" id="dishwasher_checkbox" name="dishwasher" value="yes"> Yes<br>
-    <label for="dishwasher_wattage" id="dishwasher_wattage_label" style="display:none;">Dishwasher Wattage (if known) <otherwise using 1800W>:</label>
-    <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;"><br>
+    <label for="dishwasher_yes">Do you have a dishwasher?</label>
+    <input type="radio" id="dishwasher_yes" name="dishwasher" value="yes">
+    <label for="dishwasher_yes">Yes</label>
+    <input type="radio" id="dishwasher_no" name="dishwasher" value="no" checked>
+    <label for="dishwasher_no">No</label><br>
+    <label for="user_provided_dishwasher_wattage" style="display:none;">Dishwasher Wattage (if known):</label>
+<input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;">
 
-    <label for="hottub">Do you have a hottub?</label>
-    <input type="checkbox" id="hottub_checkbox" name="hottub" value="yes"> Yes<br>
-    <label for="hottub_wattage" id="hottub_wattage_label" style="display:none;">Hottub Wattage (if known) <otherwise using 12000W>:</label>
-    <input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;"><br>
 
-    <label for="infloor_heat">Do you have electric infloor heating?</label>
-    <input type="checkbox" id="infloor_heat_checkbox" name="infloor_heat" value="yes"> Yes<br>
-    <label for="infloor_heat_wattage" id="infloor_heat_wattage_label" style="display:none;">Infloor Heating Wattage (if known) <otherwise using 1800W>:</label>
-    <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;"><br>
+    <label for="hottub_yes">Do you have a hot tub?</label>
+    <input type="radio" id="hottub_yes" name="hottub" value="yes">
+    <label for="hottub_yes">Yes</label>
+    <input type="radio" id="hottub_no" name="hottub" value="no" checked>
+    <label for="hottub_no">No</label><br>
+    <label for="user_provided_hottub_wattage" style="display:none;">Hottub Wattage (if known):</label>
+<input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;">
+
+
+
+    <label for="infloor_heat_yes">Do you have electric in-floor heating?</label>
+    <input type="radio" id="infloor_heat_yes" name="infloor_heat" value="yes">
+    <label for="infloor_heat_yes">Yes</label>
+    <input type="radio" id="infloor_heat_no" name="infloor_heat" value="no" checked>
+    <label for="infloor_heat_no">No</label><br>
+    <label for="user_provided_infloor_heat_wattage" style="display:none;">Infloor Heat Wattage (if known):</label>
+<input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
+
+
 
    
     <br>
@@ -389,8 +392,20 @@ if($message) {
     <input type="submit" name="submit" value="Calculate">
 </form>
 
+
+
+
+
+
+
+
+
+
+
+
+
     <?php
     
     return ob_get_clean(); // End output buffering and return everything
 }
-add_shortcode('load_calculator', 'load_calculator_form_shortcode');
+add_shortcode('load_calculator', 'load_calculator_form_shortcode'); 
