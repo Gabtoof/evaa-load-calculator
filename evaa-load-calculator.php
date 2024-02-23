@@ -35,6 +35,7 @@ Author: Andrew Baituk
 
 
 
+
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
     // Use the WordPress built-in script versioning for cache-busting
@@ -89,6 +90,12 @@ $message = "";
 // If the form has been submitted
 if(isset($_POST['submit'])) {
 
+
+
+
+
+
+    
     // Service Panel Capacity in Amps
 $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
 
@@ -362,8 +369,20 @@ if($remaining_capacity >= $ev_charger_load) {
 }
 
 
+
+
+
+
 // Your HTML form
+?><?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
+    $_SESSION = array(); // Clear the session variables
+    header('Location: ' . $_SERVER['PHP_SELF']); // Redirect to the same page to refresh and clear form data
+    exit;
+}
 ?>
+
 <form action="" method="post">
    
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
@@ -471,10 +490,11 @@ if($remaining_capacity >= $ev_charger_load) {
    
     <br>
 
-    <!-- Any additional form fields can be added here... -->
-
     <input type="submit" name="submit" value="Calculate">
-</form>
+    
+
+
+<input type="submit" name="reset" value="Reset" formnovalidate></form>
 
 
 
