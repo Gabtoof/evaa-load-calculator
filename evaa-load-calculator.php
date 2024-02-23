@@ -10,15 +10,20 @@ Author: Andrew Baituk
 // actually, https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/ has even better/easier to understand data
 
 /* Todo:
-* test AC changes
-* figure out 'additional loads' like electric dryer, electric water heater, 
-* get sources for hot tub
-* remove dishwasher
-* expand info on EV charger - suggest lower charging when needed
-* suggest load balancer/loadmiser when applicable
-* get someone to double check logic
-* add disclaimers/etc
-* make pretty
+[ ] test AC changes
+[ ] figure out 'additional loads' like electric dryer, electric water heater, 
+[ ] get sources for: hot tub
+[ ] in floor heat
+[ ] gas water heater (likely 0 for calc)
+[ ] tankless water heater
+[ ] gas dryer (likely 0)
+[ ] gas stove
+[*] remove dishwasher
+[ ] expand info on EV charger - suggest lower charging when needed
+[ ] suggest load balancer/loadmiser when applicable
+[ ] get someone to double check logic
+[ ] add disclaimers/etc
+[ ] make pretty
 
 */
 
@@ -183,17 +188,18 @@ if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
 
 echo "Load after AC calculation: " . $total_load . "W<br>";
 
-// dishwasher
-echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
-if(isset($_POST['dishwasher'])) {
-    if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
-        $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
-    } else {
-        $dishwasher_wattage = 1800; // default value
-    }
-    $total_load += $dishwasher_wattage;
-}
-echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
+// dishwasher commented out, part of base load calc
+// // dishwasher
+// echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
+// if(isset($_POST['dishwasher'])) {
+//     if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
+//         $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
+//     } else {
+//         $dishwasher_wattage = 1800; // default value
+//     }
+//     $total_load += $dishwasher_wattage;
+// }
+// echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
 echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
 // hottub
 if(isset($_POST['hottub'])) {
@@ -390,7 +396,7 @@ if($message) {
 
 
 
-
+<!--  part of baseload calc
     <label for="dishwasher_yes">Do you have a dishwasher?</label>
     <input type="radio" id="dishwasher_yes" name="dishwasher" value="yes">
     <label for="dishwasher_yes">Yes</label>
@@ -398,7 +404,7 @@ if($message) {
     <label for="dishwasher_no">No</label><br>
     <label for="user_provided_dishwasher_wattage" style="display:none;">Dishwasher Wattage (if known):</label>
 <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;">
-
+-->
 
     <label for="hottub_yes">Do you have a hot tub?</label>
     <input type="radio" id="hottub_yes" name="hottub" value="yes">
