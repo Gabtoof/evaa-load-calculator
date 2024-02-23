@@ -6,6 +6,10 @@ Version: 1.0
 Author: Andrew Baituk
 */
 
+// using data from https://www.edmonton.ca/sites/default/files/public-files/assets/PDF/Electrical_Inspection_Load_Calculation.pdf?cb=1625176204
+// actually, https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/ has even better/easier to understand data
+
+
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
     // Use the WordPress built-in script versioning for cache-busting
@@ -32,6 +36,8 @@ function load_calculator_form_shortcode() {
 // Initialize variables with default values
 $home_size_unit = "sqft"; // Replace 'default_unit' with whatever default value you deem appropriate
 $home_size = 0; // Default to 0, or any other appropriate value
+$home_size_mainlivingarea = 0; // Default to 0, or any other appropriate value
+$home_size_basement = 0; // Default to 0, or any other appropriate value
 
 // Check if the keys exist in the $_POST data and assign them
 if (isset($_POST['home_size_unit'])) {
@@ -41,7 +47,18 @@ if (isset($_POST['home_size_unit'])) {
 if (isset($_POST['home_size'])) {
     $home_size = intval($_POST['home_size']); // Convert to integer for safety
 }
+if (isset($_POST['home_size_mainlivingarea'])) {
+    $home_size = intval($_POST['home_size_mainlivingarea']); // Convert to integer for safety
+}
+if (isset($_POST['home_size_basement'])) {
+    $home_size = intval($_POST['home_size_basement']); // Convert to integer for safety
+}
 
+// Calculate total home size
+$home_size_total = $home_size_mainlivingarea + $home_size_basement;
+
+// Calculate total size including 75% of basement in one line
+$home_size_total75 = $home_size_mainlivingarea + $home_size_basement * 0.75;
 
 $total_load = 0;
 $message = "";
@@ -55,20 +72,42 @@ $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
 // Convert to Watts (assuming 240V)
 $panel_capacity = $panel_capacity_amps * 240;
 
-echo "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
+echo "**Home Size Details:**<br>";
+echo "- Main living area: " . $home_size_mainlivingarea . " " . $_POST['home_size_unit'] . "<br>";
+echo "- Basement Size (if applicable): " . $home_size_basement . " " . $_POST['home_size_unit'] . "<br>";
+echo "- Total Home Size: " . $home_size_total . " " . $_POST['home_size_unit'] . "<br>";
 
 // Convert home size to m² and sqft
-$home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
-$home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;
+//$home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
+//$home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;  // Conversion factors
+$conversion_factor_m2_to_sqft = 10.764;
+$conversion_factor_sqft_to_m2 = 0.092903;
 
-echo "Converted Home Size in m2: " . $home_size_m2 . " m2<br>";
-echo "Converted Home Size in sqft: " . $home_size_sqft . " sqft<br>";
+// Convert main living area
+$home_size_mainlivingarea_m2 = $home_size_mainlivingarea * $conversion_factor_sqft_to_m2;
+$home_size_mainlivingarea_sqft = $home_size_mainlivingarea;
+
+// Convert basement size (if applicable)
+$home_size_basement_m2 = $home_size_basement * $conversion_factor_sqft_to_m2;
+$home_size_basement_sqft = $home_size_basement;
+
+// Convert total home size
+$home_size_total_m2 = $home_size_total * $conversion_factor_sqft_to_m2;
+$home_size_total_sqft = $home_size_total;
+
+// Convert total home size w/basement @ 75%
+$home_size_total75_m2 = $home_size_total75 * $conversion_factor_sqft_to_m2;
+$home_size_total75_sqft = $home_size_total75;
+
+echo "Converted Home Size in m2: " . $home_size_total_m2 . " m2<br>";
+echo "Converted Home Size in sqft: " . $home_size_total_sqft . " sqft<br>";
 
 // Living Area load calculation based on m²
-if($home_size_m2 <= 90) {
+// per https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+if($home_size_total75_m2 <= 90) {
 $total_load += 5000;
 } else {
-$total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
+$total_load += 5000 + (1000 * ceil(($home_size_total75_m2 - 90)/90));
 }
   
 echo "Base Living Area Load: 5000W<br>";
@@ -256,9 +295,6 @@ switch($stove_type) {
 echo "Load after Stove calculation: " . $total_load . "W<br>";
 
 
-    // Other appliances and features...
-    // ...
-
     // Calculate remaining capacity
     $remaining_capacity = $panel_capacity - $total_load;
 
@@ -291,8 +327,10 @@ if($message) {
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" required><br>
 
-    <label for="home_size">Approx size of home (developed/livable area):</label>
-    <input type="number" id="home_size" name="home_size" required>
+    <label for="home_size_mainlivingarea">Approx size of home (developed/livable area, excluding basement):</label>
+    <input type="number" id="home_size_mainlivingarea" name="home_size_mainlivingarea" required>
+    <label for="home_size_basement">Approx size of basement (if applicable):</label>
+    <input type="number" id="home_size_basement" name="home_size_basement">
     <select name="home_size_unit">
         <option value="sqft">sq ft</option>
         <option value="m2">m²</option>
