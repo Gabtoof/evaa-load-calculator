@@ -9,6 +9,18 @@ Author: Andrew Baituk
 // using data from https://www.edmonton.ca/sites/default/files/public-files/assets/PDF/Electrical_Inspection_Load_Calculation.pdf?cb=1625176204
 // actually, https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/ has even better/easier to understand data
 
+/* Todo:
+* test AC changes
+* figure out 'additional loads' like electric dryer, electric water heater, 
+* get sources for hot tub
+* remove dishwasher
+* expand info on EV charger - suggest lower charging when needed
+* suggest load balancer/loadmiser when applicable
+* get someone to double check logic
+* add disclaimers/etc
+* make pretty
+
+*/
 
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
@@ -36,8 +48,6 @@ function load_calculator_form_shortcode() {
 // Initialize variables with default values
 $home_size_unit = "sqft"; // Replace 'default_unit' with whatever default value you deem appropriate
 $home_size = 0; // Default to 0, or any other appropriate value
-$home_size_mainlivingarea = 0; // Default to 0, or any other appropriate value
-$home_size_basement = 0; // Default to 0, or any other appropriate value
 
 // Check if the keys exist in the $_POST data and assign them
 if (isset($_POST['home_size_unit'])) {
@@ -47,18 +57,7 @@ if (isset($_POST['home_size_unit'])) {
 if (isset($_POST['home_size'])) {
     $home_size = intval($_POST['home_size']); // Convert to integer for safety
 }
-if (isset($_POST['home_size_mainlivingarea'])) {
-    $home_size_mainlivingarea = intval($_POST['home_size_mainlivingarea']); // Convert to integer for safety
-}
-if (isset($_POST['home_size_basement'])) {
-    $home_size_basement = intval($_POST['home_size_basement']); // Convert to integer for safety
-}
 
-// Calculate total home size
-$home_size_total = $home_size_mainlivingarea + $home_size_basement;
-
-// Calculate total size including 75% of basement in one line
-$home_size_total75 = $home_size_mainlivingarea + $home_size_basement * 0.75;
 
 $total_load = 0;
 $message = "";
@@ -72,42 +71,21 @@ $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
 // Convert to Watts (assuming 240V)
 $panel_capacity = $panel_capacity_amps * 240;
 
-echo "**Home Size Details:**<br>";
-echo "- Main living area: " . $home_size_mainlivingarea . " " . $_POST['home_size_unit'] . "<br>";
-echo "- Basement Size (if applicable): " . $home_size_basement . " " . $_POST['home_size_unit'] . "<br>";
-echo "- Total Home Size: " . $home_size_total . " " . $_POST['home_size_unit'] . "<br>";
+echo "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
 
 // Convert home size to m² and sqft
-//$home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
-//$home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;  // Conversion factors
-$conversion_factor_m2_to_sqft = 10.764;
-$conversion_factor_sqft_to_m2 = 0.092903;
+$home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
+$home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;
 
-// Convert main living area
-$home_size_mainlivingarea_m2 = $home_size_mainlivingarea * $conversion_factor_sqft_to_m2;
-$home_size_mainlivingarea_sqft = $home_size_mainlivingarea;
-
-// Convert basement size (if applicable)
-$home_size_basement_m2 = $home_size_basement * $conversion_factor_sqft_to_m2;
-$home_size_basement_sqft = $home_size_basement;
-
-// Convert total home size
-$home_size_total_m2 = $home_size_total * $conversion_factor_sqft_to_m2;
-$home_size_total_sqft = $home_size_total;
-
-// Convert total home size w/basement @ 75%
-$home_size_total75_m2 = $home_size_total75 * $conversion_factor_sqft_to_m2;
-$home_size_total75_sqft = $home_size_total75;
-
-echo "Converted Home Size in m2: " . $home_size_total_m2 . " m2<br>";
-echo "Converted Home Size in sqft: " . $home_size_total_sqft . " sqft<br>";
+echo "Converted Home Size in m2: " . $home_size_m2 . " m2<br>";
+echo "Converted Home Size in sqft: " . $home_size_sqft . " sqft<br>";
 
 // Living Area load calculation based on m²
-// per https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
-if($home_size_total75_m2 <= 90) {
+// Accepting that this doesn't factor in 75% for basements. That adds complexity to user and this will give us only a slightly more 'conservative' result (more likely to say EV charger may not 'fit')
+if($home_size_m2 <= 90) {
 $total_load += 5000;
 } else {
-$total_load += 5000 + (1000 * ceil(($home_size_total75_m2 - 90)/90));
+$total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
 }
   
 echo "Base Living Area Load: 5000W<br>";
@@ -120,48 +98,55 @@ echo "Load before heating calculation: " . $total_load . "W<br>";
 $heating_type = $_POST['heating'];
 switch($heating_type) {
     case "gas":
-        $total_load += 960; // 960W for gas furnace
+        //https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+        $total_load += 0; //  for gas furnace
+        $heat_load += 0; 
         break;
     case "electric":
         // Determine load based on home size_sqft
+        // 
         if($home_size_sqft <= 1500) {
-            $total_load += 10000; // 10kW
+            $total_load += 18000; // 1000sqft 18kW
         } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 15000; // 15kW
+            $total_load += 40000; // 2200sqft 40kW
         } else {
-            $total_load += 20000; // 20kW
+            $total_load += 54000; // 3000sqft 54kW
         }
         break;
     case "air_heat_pump":
         // Determine load based on home size_sqft
+        // https://sourceheatpump.com/how-much-electricity-air-source-heat-pump-uses/
+        // 
+       
         if($home_size_sqft <= 1500) {
-            $total_load += 3500; // 3.5kW
+            $total_load += 13200; // 1500 13.2kW
         } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 5000; // 5kW
+            $total_load += 22000; // 2500
         } else {
-            $total_load += 7000; // 7kW
+            $total_load += 26300; // 3000
         }
         break;
-    case "geo_heat_pump":
-        // Determine load based on home size_sqft
-        if($home_size_sqft <= 1500) {
-            $total_load += 5000; // 5kW
-        } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 7000; // 7kW
-        } else {
-            $total_load += 9000; // 9kW
-        }
-        break;
-    case "boiler":
-        // Determine load based on home size_sqft
-        if($home_size_sqft <= 1500) {
-            $total_load += 8000; // 8kW
-        } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 12000; // 12kW
-        } else {
-            $total_load += 15000; // 15kW
-        }
-        break;
+    //removing until we can find a good source of data
+    // case "geo_heat_pump":
+    //     // Determine load based on home size_sqft
+    //     if($home_size_sqft <= 1500) {
+    //         $total_load += 5000; // 5kW
+    //     } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
+    //         $total_load += 7000; // 7kW
+    //     } else {
+    //         $total_load += 9000; // 9kW
+    //     }
+    //     break;
+    // case "boiler":
+    //     // Determine load based on home size_sqft
+    //     if($home_size_sqft <= 1500) {
+    //         $total_load += 8000; // 8kW
+    //     } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
+    //         $total_load += 12000; // 12kW
+    //     } else {
+    //         $total_load += 15000; // 15kW
+    //     }
+    //     break;
     case "heating_watt":
         $total_load += intval($_POST['user_provided_heating_wattage']);
         break;
@@ -175,12 +160,23 @@ echo "Load before AC calculation: " . $total_load . "W<br>";
 
 
 // AC calculation
+// https://www.thisoldhouse.com/heating-cooling/reviews/what-size-air-conditioner-do-i-need
+//https://www.electricalcalculators.org/air-conditioner-power-consumption-calculator/#:~:text=Answer%3A%202%20Ton%20ac%20%3D%202400%20watt%20%3D,of%20%240.2%2FkWh%20%3D%207.2%20kWh%20%2A%240.2%2FkWh%20%3D%20%241.44
+// 1500sqft 2ton 2400w, 2200 2.75t 3300w, 3000 3.5t 4200w
 if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
     // If AC wattage is provided by user, use that; otherwise, use default
     if (isset($_POST['user_provided_ac_wattage']) && !empty($_POST['user_provided_ac_wattage'])) {
         $ac_wattage = intval($_POST['user_provided_ac_wattage']);
     } else {
-        $ac_wattage = 3500; // Default AC wattage
+        if ($heating_type == "gas") {
+            if ($home_size_sqft <= 1500) {
+              $total_load += 2400; // 
+            } elseif ($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
+              $total_load += 3300; // 
+            } else {
+              $total_load += 4200; // 
+            }
+          }
     }
     $total_load += $ac_wattage;
 }
@@ -282,7 +278,9 @@ $stove_type = $_POST['stove'];
 
 switch($stove_type) {
     case "electric":
-        $total_load += 5000; // Default wattage for electric stove
+        // https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+        // https://www.lg.com/ca_en/cooking-appliances/ranges/lsil6336f/
+        $total_load += 6000; // Default wattage for electric stove
         break;
     case "stove_wattage":
         if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
@@ -293,6 +291,7 @@ switch($stove_type) {
 }
 
 echo "Load after Stove calculation: " . $total_load . "W<br>";
+
 
 
     // Calculate remaining capacity
@@ -327,10 +326,8 @@ if($message) {
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" required><br>
 
-    <label for="home_size_mainlivingarea">Approx size of home (developed/livable area, excluding basement):</label>
-    <input type="number" id="home_size_mainlivingarea" name="home_size_mainlivingarea" required><br>
-    <label for="home_size_basement">Approx size of basement (if applicable):</label>
-    <input type="number" id="home_size_basement" name="home_size_basement">
+    <label for="home_size">Approx size of home (developed/livable area):</label>
+    <input type="number" id="home_size" name="home_size" required>
     <select name="home_size_unit">
         <option value="sqft">sq ft</option>
         <option value="m2">m²</option>
@@ -340,10 +337,11 @@ if($message) {
     <label for="heating">Heating Type:</label>
     <select name="heating" id="heating">
         <option value="gas">Gas Furnace</option>
-        <option value="electric">Electric Furnace (est based on home size)  </option>
+        <option value="electric">Electric Furnace</option>
         <option value="air_heat_pump">Air Source Heat Pump</option>
-        <option value="geo_heat_pump">Geothermal Heat Pump</option>
-        <option value="boiler">Boiler System</option>
+        <!-- removing until we can find a good source of data
+        <option value="geo_heat_pump">Geothermal Heat Pump</option> 
+        <option value="boiler">Boiler System</option> -->
         <option value="heating_wattage">I'll provide my heating wattage:</option>
         <!-- Input field for heating wattage -->
         <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
