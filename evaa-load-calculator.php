@@ -12,7 +12,8 @@ Author: Andrew Baituk
 /* Todo:
 [ ] test AC changes
 [*] Fix show of watts
-[ ] figure out 'additional loads' like electric dryer, electric water heater, 
+[*] figure out 'additional loads' like electric dryer, electric water heater, 
+[*] user larger of heat/ac
 [*] get sources for: hot tub
 [*] in floor heat
 [*] gas water heater (likely 0 for calc)
