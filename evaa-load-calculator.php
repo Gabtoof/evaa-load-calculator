@@ -13,13 +13,15 @@ Author: Andrew Baituk
 [ ] test AC changes
 [*] Fix show of watts
 [ ] figure out 'additional loads' like electric dryer, electric water heater, 
-[ ] get sources for: hot tub
-[ ] in floor heat
-[ ] gas water heater (likely 0 for calc)
-[ ] tankless water heater
-[ ] gas dryer (likely 0)
+[*] get sources for: hot tub
+[*] in floor heat
+[*] gas water heater (likely 0 for calc)
+[*] tankless water heater - removed as this can be gas or electric and thus covered under those
+[*] gas dryer (likely 0)
+[*] add heat pump dryer
 [ ] gas stove
 [*] remove dishwasher
+[ ] show default values to be used
 [ ] expand info on EV charger - suggest lower charging when needed
 [ ] suggest load balancer/loadmiser when applicable
 [ ] get someone to double check logic
@@ -98,71 +100,37 @@ echo "Base Living Area Load: 5000W<br>";
 echo "Additional Living Area Load: " . ($total_load - 5000) . "W<br>";
 echo "Total Living Area Load: " . $total_load . "W<br>";
 
-// Before heating calculation
+// Before heating/AC calculation
 echo "Load before heating calculation: " . $total_load . "W<br>";
 // Heating
+
 $heating_type = $_POST['heating'];
 switch($heating_type) {
-    case "gas":
-        //https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
-        $total_load += 0; //  for gas furnace
-        $heat_load += 0; 
+    case "gas":  //https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+        $heating_load = 0; // No additional load for gas heating
         break;
     case "electric":
-        // Determine load based on home size_sqft
-        // 
         if($home_size_sqft <= 1500) {
-            $total_load += 18000; // 1000sqft 18kW
+            $heating_load = 18000;
         } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 40000; // 2200sqft 40kW
+            $heating_load = 40000;
         } else {
-            $total_load += 54000; // 3000sqft 54kW
+            $heating_load = 54000;
         }
         break;
-    case "air_heat_pump":
-        // Determine load based on home size_sqft
-        // https://sourceheatpump.com/how-much-electricity-air-source-heat-pump-uses/
-        // 
-       
+    case "air_heat_pump": //https://sourceheatpump.com/how-much-electricity-air-source-heat-pump-uses/
         if($home_size_sqft <= 1500) {
-            $total_load += 13200; // 1500 13.2kW
+            $heating_load = 13200;
         } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-            $total_load += 22000; // 2500
+            $heating_load = 22000;
         } else {
-            $total_load += 26300; // 3000
+            $heating_load = 26300;
         }
         break;
-    //removing until we can find a good source of data
-    // case "geo_heat_pump":
-    //     // Determine load based on home size_sqft
-    //     if($home_size_sqft <= 1500) {
-    //         $total_load += 5000; // 5kW
-    //     } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-    //         $total_load += 7000; // 7kW
-    //     } else {
-    //         $total_load += 9000; // 9kW
-    //     }
-    //     break;
-    // case "boiler":
-    //     // Determine load based on home size_sqft
-    //     if($home_size_sqft <= 1500) {
-    //         $total_load += 8000; // 8kW
-    //     } elseif($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-    //         $total_load += 12000; // 12kW
-    //     } else {
-    //         $total_load += 15000; // 15kW
-    //     }
-    //     break;
     case "heating_watt":
-        $total_load += intval($_POST['user_provided_heating_wattage']);
+        $heating_load = intval($_POST['user_provided_heating_wattage']);
         break;
-
-        
 }
-// After heating calculation
-echo "Load after heating calculation: " . $total_load . "W<br>";
-
-echo "Load before AC calculation: " . $total_load . "W<br>";
 
 
 // AC calculation
@@ -172,58 +140,62 @@ echo "Load before AC calculation: " . $total_load . "W<br>";
 if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
     // If AC wattage is provided by user, use that; otherwise, use default
     if (isset($_POST['user_provided_ac_wattage']) && !empty($_POST['user_provided_ac_wattage'])) {
-        $ac_wattage = intval($_POST['user_provided_ac_wattage']);
+        $ac_load = intval($_POST['user_provided_ac_wattage']);
     } else {
+        // Assuming $heating_type is determined before this code snippet
         if ($heating_type == "gas") {
             if ($home_size_sqft <= 1500) {
-              $total_load += 2400; // 
+                $ac_load = 2400;
             } elseif ($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-              $total_load += 3300; // 
+                $ac_load = 3300;
             } else {
-              $total_load += 4200; // 
+                $ac_load = 4200;
             }
-          }
+        }
     }
-    $total_load += $ac_wattage;
 }
 
-echo "Load after AC calculation: " . $total_load . "W<br>";
 
-// dishwasher commented out, part of base load calc
-// // dishwasher
-// echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
-// if(isset($_POST['dishwasher'])) {
-//     if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
-//         $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
-//     } else {
-//         $dishwasher_wattage = 1800; // default value
-//     }
-//     $total_load += $dishwasher_wattage;
-// }
-// echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
-echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
-// hottub
-if(isset($_POST['hottub'])) {
-    if (isset($_POST['user_provided_hottub_wattage']) && !empty($_POST['user_provided_hottub_wattage'])) {
-        $hottub_wattage = intval($_POST['user_provided_hottub_wattage']);
-    } else {
-        $hottub_wattage = 12000; // default value
-    }
-    $total_load += $hottub_wattage;
+// Decide which load to add based on which is larger
+if ($ac_load > $heating_load) {
+    $total_load += $ac_load;
+    // Debugging output
+    echo "AC Load is larger. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
+} else {
+    $total_load += $heating_load;
+    // Debugging output
+    echo "Heating Load is larger or equal. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
 }
-echo "Load after Hot Tub calculation: " . $total_load . "W<br>";
-echo "Load before Infloor Heating calculation: " . $total_load . "W<br>";
-// infloor_heat
-if(isset($_POST['infloor_heat'])) {
-    if (isset($_POST['user_provided_infloor_heat_wattage']) && !empty($_POST['user_provided_infloor_heat_wattage'])) {
-        $infloor_heat_wattage = intval($_POST['user_provided_infloor_heat_wattage']);
-    } else {
-        $infloor_heat_wattage = 1800; // default value
-    }
-    $total_load += $infloor_heat_wattage;
-}
-echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
 
+echo "Load After HVAC calculation: " . $total_load . "W<br>";
+
+echo "Load before Stove calculation: " . $total_load . "W<br>";
+// Stove
+$stove_type = $_POST['stove'];
+
+switch($stove_type) {
+    case "electric":
+        // https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+        // https://www.lg.com/ca_en/cooking-appliances/ranges/lsil6336f/
+        $total_load += 12000; // Default wattage for electric stove
+        break;
+    case "gas":
+        
+        $total_load += 0; // covered in base load - less than 1500W
+        break;
+
+    case "stove_wattage":
+        if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
+            $total_load += intval($_POST['user_provided_stove_wattage']);
+        }
+        break;
+    // Add cases for other types if necessary
+}
+// Flag to indicate if the electric stove is selected
+$isElectricStoveSelected = ($stove_type === "electric");
+
+
+echo "Load after Stove calculation: " . $total_load . "W<br>";
 
 
 echo "Load before Water Heater calculation: " . $total_load . "W<br>";
@@ -233,14 +205,16 @@ $water_heater_type = $_POST['water_heater'];
 
 switch($water_heater_type) {
     case "electric":
-        $total_load += 4500; // Default wattage for electric water heater
+        // https://solvitnow.com/blog/what-size-breaker-do-i-need-for-my-water-heater/
+        // if electric stove, only use 25%
+        $loadToAdd = $electricStoveSelected ? (5760 * 0.25) : 5760; // Default wattage for electric water heater
+        $total_load += $loadToAdd; 
         break;
     case "gas":
-        $total_load += 600; // Default wattage for gas water heater
+        
+        $total_load += 0; // no appreciable electricl load
         break;
-    case "tankless":
-        $total_load += 12000; // Default wattage for tankless water heater
-        break;
+
     case "water_heater_wattage": // This case should match the value attribute from the HTML select option
         // Check if the user provided a custom wattage
         if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
@@ -263,10 +237,17 @@ $clothes_dryer_type = $_POST['clothes_dryer'];
 
 switch($clothes_dryer_type) {
     case "electric":
-        $total_load += 6000; // Default wattage for electric clothes dryer
+        // if electric stove, only use 25%
+        // https://products.geappliances.com/appliance/gea-support-search-content?contentId=34592
+        $loadToAdd = $electricStoveSelected ? (5600 * 0.25) : 5600; 
+        $total_load += $loadToAdd;
+
         break;
     case "gas":
-        $total_load += 1200; // Default wattage for gas clothes dryer
+        $total_load += 0; // covered under base load
+        break;
+    case "heatpump":
+        $total_load += 0; // covered under base load
         break;
     case "clothes_dryer_wattage":
         if (isset($_POST['user_provided_clothes_dryer_wattage']) && !empty($_POST['user_provided_clothes_dryer_wattage'])) {
@@ -278,26 +259,57 @@ switch($clothes_dryer_type) {
 
 echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
 
-echo "Load before Stove calculation: " . $total_load . "W<br>";
 
-// Stove
-$stove_type = $_POST['stove'];
 
-switch($stove_type) {
-    case "electric":
-        // https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
-        // https://www.lg.com/ca_en/cooking-appliances/ranges/lsil6336f/
-        $total_load += 6000; // Default wattage for electric stove
-        break;
-    case "stove_wattage":
-        if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
-            $total_load += intval($_POST['user_provided_stove_wattage']);
-        }
-        break;
-    // Add cases for other types if necessary
+// dishwasher commented out, part of base load calc
+// // dishwasher
+// echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
+// if(isset($_POST['dishwasher'])) {
+//     if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
+//         $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
+//     } else {
+//         $dishwasher_wattage = 1800; // default value
+//     }
+//     $total_load += $dishwasher_wattage;
+// }
+// echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
+
+
+
+
+
+echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
+// hottub
+// https://homeinspectioninsider.com/how-many-amps-does-a-hot-tub-use/
+if(isset($_POST['hottub'])) {
+    if (isset($_POST['user_provided_hottub_wattage']) && !empty($_POST['user_provided_hottub_wattage'])) {
+        $hottub_wattage = intval($_POST['user_provided_hottub_wattage']);
+    } else {
+        $hottub_wattage = 12000; // default value
+    }
+    $total_load += $hottub_wattage;
 }
+echo "Load after Hot Tub calculation: " . $total_load . "W<br>";
+echo "Load before Infloor Heating calculation: " . $total_load . "W<br>";
+// infloor_heat
+// https://thehomeans.com/how-many-amps-does-a-heated-floor-use/#What%20Size%20Breaker%20Do%20I%20Need%20For%20Underfloor%20Heating?
+if(isset($_POST['infloor_heat'])) {
+    if (isset($_POST['user_provided_infloor_heat_wattage']) && !empty($_POST['user_provided_infloor_heat_wattage'])) {
+        $infloor_heat_wattage = intval($_POST['user_provided_infloor_heat_wattage']);
+    } else {
+        $infloor_heat_wattage = 7680; // default value
+    }
+    $total_load += $infloor_heat_wattage;
+}
+echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
 
-echo "Load after Stove calculation: " . $total_load . "W<br>";
+
+
+
+
+
+
+
 
 
 
@@ -361,7 +373,6 @@ if($message) {
 <select name="water_heater" id="water_heater">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="tankless">Tankless</option>
     <option value="water_heater_wattage">I'll provide nameplate wattage:</option>
 </select>
 <!-- Input field for user-entered wattage -->
@@ -373,6 +384,7 @@ if($message) {
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
+    <option value="heatpump">Electric Heat Pump</option>
     <option value="clothes_dryer_wattage">I'll provide nameplate wattage:</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
