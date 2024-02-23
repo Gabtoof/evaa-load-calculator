@@ -214,6 +214,7 @@ switch($stove_type) {
         // https://www.lg.com/ca_en/cooking-appliances/ranges/lsil6336f/
         // $total_load += 12000; // 80% of a 40A circuit
         $total_load += 6000; // 6kW allowance up to 12kW actual per https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+        $stove_w = 6000;
         break;
     case "gas":
         
@@ -223,17 +224,20 @@ switch($stove_type) {
     case "stove_wattage":
         if (isset($_POST['user_provided_stove_wattage']) && !empty($_POST['user_provided_stove_wattage'])) {
             $total_load += intval($_POST['user_provided_stove_wattage']);
+            $stove_w = intval($_POST['user_provided_stove_wattage']);
         }
         break;
     // Add cases for other types if necessary
 }
 // Flag to indicate if the electric stove is selected
-$isElectricStoveSelected = ($stove_type === "electric");
+// Check if the stove type is either "electric" or the user has chosen to provide a custom wattage for an electric stove
+$isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove_wattage");
+
+// Output the stove type
 $output .= "Stove Type: " . $stove_type . "<br>";
-$isElectricStoveSelected = ($stove_type === "electric");
+
+// Output whether an electric stove is selected, considering both "electric" and "stove_wattage" as valid conditions
 $output .= "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-
-
 
 $output .= "Load after Stove calculation: " . $total_load . "W<br>";
 
@@ -288,6 +292,7 @@ switch($clothes_dryer_type) {
         //$loadToAdd = $isElectricStoveSelected ? (5600 * 0.25) : 5600; 
         $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; //80% of 30A circuit
         $total_load += $loadToAdd;
+        $clothes_dryer_w = $loadToAdd
         // Debugging Echoes
         $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
         $output .= "Load to Add: " . $loadToAdd . "W<br>";
@@ -303,6 +308,7 @@ switch($clothes_dryer_type) {
             $user_provided_wattage = intval($_POST['user_provided_clothes_dryer_wattage']);
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
+            $clothes_dryer_w = $loadToAdd
             $output .= "Custom Clothes Dryer Wattage: " . $loadToAdd . "W<br>";
         }
         break;
