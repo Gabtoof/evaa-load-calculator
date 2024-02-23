@@ -11,6 +11,7 @@ Author: Andrew Baituk
 
 /* Todo:
 [ ] test AC changes
+[*] Fix show of watts
 [ ] figure out 'additional loads' like electric dryer, electric water heater, 
 [ ] get sources for: hot tub
 [ ] in floor heat
@@ -348,10 +349,12 @@ if($message) {
         <!-- removing until we can find a good source of data
         <option value="geo_heat_pump">Geothermal Heat Pump</option> 
         <option value="boiler">Boiler System</option> -->
-        <option value="heating_wattage">I'll provide my heating wattage:</option>
+        <option value="heating_wattage">I'll provide nameplate wattage:</option>
         <!-- Input field for heating wattage -->
-        <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
+        
     </select>
+    <label for="user_provided_heating_wattage" id="user_provided_heating_wattage_label" style="display:none;">Watts:</label>
+    <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
     <br>
 
     <label for="water_heater">Water Heater Type:</label>
@@ -359,9 +362,10 @@ if($message) {
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
     <option value="tankless">Tankless</option>
-    <option value="water_heater_wattage">I'll provide my water heater wattage:</option>
+    <option value="water_heater_wattage">I'll provide nameplate wattage:</option>
 </select>
 <!-- Input field for user-entered wattage -->
+<label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Watts:</label>
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
 <br>
 
@@ -369,18 +373,20 @@ if($message) {
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="clothes_dryer_wattage">I'll provide my clothes dryer wattage:</option>
+    <option value="clothes_dryer_wattage">I'll provide nameplate wattage:</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
+<label for="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage_label" style="display:none;">Watts:</label>
 <input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage" style="display: none;"><br>
 
 <label for="stove">Stove:</label>
 <select name="stove" id="stove">
     <option value="gas">Gas</option>
     <option value="electric">Electric</option>
-    <option value="stove_wattage">I'll provide my stove wattage:</option>
+    <option value="stove_wattage">I'll provide nameplate wattage:</option>
 </select>
 <!-- Input field for user-provided stove wattage -->
+<label for="user_provided_stove_wattage" id="user_provided_stove_wattage_label" style="display:none;">Watts:</label>
 <input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="display: none;"><br>
 
 <br>
@@ -391,7 +397,7 @@ if($message) {
 <input type="radio" id="ac_no" name="ac" value="no"  checked>
 <label for="ac_no">No</label><br>
 
-<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
+<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
 <input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;">
 
 
@@ -411,7 +417,7 @@ if($message) {
     <label for="hottub_yes">Yes</label>
     <input type="radio" id="hottub_no" name="hottub" value="no" checked>
     <label for="hottub_no">No</label><br>
-    <label for="user_provided_hottub_wattage" style="display:none;">Hottub Wattage (if known):</label>
+    <label for="user_provided_hottub_wattage" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
 <input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;">
 
 
@@ -421,7 +427,7 @@ if($message) {
     <label for="infloor_heat_yes">Yes</label>
     <input type="radio" id="infloor_heat_no" name="infloor_heat" value="no" checked>
     <label for="infloor_heat_no">No</label><br>
-    <label for="user_provided_infloor_heat_wattage" style="display:none;">Infloor Heat Wattage (if known):</label>
+    <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
 <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
 
 
