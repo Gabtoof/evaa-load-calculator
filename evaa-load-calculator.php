@@ -48,10 +48,10 @@ if (isset($_POST['home_size'])) {
     $home_size = intval($_POST['home_size']); // Convert to integer for safety
 }
 if (isset($_POST['home_size_mainlivingarea'])) {
-    $home_size = intval($_POST['home_size_mainlivingarea']); // Convert to integer for safety
+    $home_size_mainlivingarea = intval($_POST['home_size_mainlivingarea']); // Convert to integer for safety
 }
 if (isset($_POST['home_size_basement'])) {
-    $home_size = intval($_POST['home_size_basement']); // Convert to integer for safety
+    $home_size_basement = intval($_POST['home_size_basement']); // Convert to integer for safety
 }
 
 // Calculate total home size
