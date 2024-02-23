@@ -87,6 +87,17 @@ if (isset($_POST['home_size'])) {
 $total_load = 0;
 $message = "";
 
+
+// Define the array of EV chargers
+$ev_chargers = [
+    ["amperage" => 12, "wattage" => 2800, "kmPerHour" => 19, "fullChargeTime" => "approx 14h"],
+    ["amperage" => 16, "wattage" => 3800, "kmPerHour" => 24, "fullChargeTime" => "approx 10.75h"],
+    ["amperage" => 24, "wattage" => 5700, "kmPerHour" => 37, "fullChargeTime" => "approx 7h"],
+    ["amperage" => 32, "wattage" => 7600, "kmPerHour" => 50, "fullChargeTime" => "approx 5.25h"],
+    ["amperage" => 40, "wattage" => 9600, "kmPerHour" => 61, "fullChargeTime" => "approx 4.25h"],
+    ["amperage" => 48, "wattage" => 11500, "kmPerHour" => 74, "fullChargeTime" => "approx 3.5h"]
+];
+
 // If the form has been submitted
 if(isset($_POST['submit'])) {
 
@@ -202,7 +213,7 @@ switch($stove_type) {
         // https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
         // https://www.lg.com/ca_en/cooking-appliances/ranges/lsil6336f/
         // $total_load += 12000; // 80% of a 40A circuit
-        $total_load += 7680; // 80% of a 40A circuit
+        $total_load += 6000; // 6kW allowance up to 12kW actual per https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
         break;
     case "gas":
         
@@ -249,9 +260,13 @@ switch($water_heater_type) {
     case "water_heater_wattage": // This case should match the value attribute from the HTML select option
         // Check if the user provided a custom wattage
         if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
-            // Convert and add the user-entered wattage to the total load
-            $user_provided_wattage = intval($_POST['user_provided_water_heater_wattage']); // Make sure this variable name is consistent
-            $total_load += $user_provided_wattage;
+            $user_provided_wattage = intval($_POST['user_provided_water_heater_wattage']);
+            // Apply the 25% rule if electric stove is selected
+            $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
+            $total_load += $loadToAdd;
+            $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
+            $output .= "Custom Water Heater Wattage: " . $user_provided_wattage . "W<br>";
+            $output .= "Load to Add (after adjustment if applicable): " . $loadToAdd . "W<br>";
         }
         break;
     default:
@@ -285,7 +300,10 @@ switch($clothes_dryer_type) {
         break;
     case "clothes_dryer_wattage":
         if (isset($_POST['user_provided_clothes_dryer_wattage']) && !empty($_POST['user_provided_clothes_dryer_wattage'])) {
-            $total_load += intval($_POST['user_provided_clothes_dryer_wattage']);
+            $user_provided_wattage = intval($_POST['user_provided_clothes_dryer_wattage']);
+            $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
+            $total_load += $loadToAdd;
+            $output .= "Custom Clothes Dryer Wattage: " . $loadToAdd . "W<br>";
         }
         break;
     // Add cases for other types if necessary
@@ -356,18 +374,32 @@ $output .= "Panel Capacity: " . $panel_capacity . "W<br>";
 $output .= "Total Load: " . $total_load . "W<br>";
 $output .= "Remaining Capacity: " . $remaining_capacity . "W<br>";
 
-    // EV Charger Load (placeholder value)
-    $ev_charger_load = 7000; // Replace with the typical load of the EV charger you're considering
 
-if($remaining_capacity >= $ev_charger_load) {
-    $message = "You have enough capacity to add an EV charger! Your remaining capacity is " . $remaining_capacity . "W, and the typical EV charger requires about " . $ev_charger_load . "W.";
+
+
+}
+
+// Find the best fit EV charger based on remaining capacity
+$best_fit_charger = null;
+foreach (array_reverse($ev_chargers) as $charger) {
+    if ($remaining_capacity >= $charger["wattage"]) {
+        $best_fit_charger = $charger;
+        break; // Found the highest possible charger that fits
+    }
+}
+
+// Construct the message based on the best fit charger found
+if ($best_fit_charger) {
+    $message = "Based on your remaining capacity of {$remaining_capacity}W, the best fit EV charger is: " .
+               "{$best_fit_charger["amperage"]}A ({$best_fit_charger["wattage"]}W), adding " .
+               "{$best_fit_charger["kmPerHour"]}km/h with a full charge in " .
+               "{$best_fit_charger["fullChargeTime"]}.";
 } else {
-    $message = "Based on the provided details, you might need to upgrade your panel to add an EV charger. Your remaining capacity is " . $remaining_capacity . "W, but a typical EV charger requires about " . $ev_charger_load . "W.";
+    $message = "Based on the provided details and your remaining capacity of {$remaining_capacity}W, " .
+               "you might need to upgrade your panel to add an EV charger.";
 }
 
-
-}
-
+echo $message;
 
 
 
