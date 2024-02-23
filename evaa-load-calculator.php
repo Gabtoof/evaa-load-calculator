@@ -392,7 +392,7 @@ if($message) {
 <label for="ac_no">No</label><br>
 
 <label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">AC Wattage (if known):</label>
-<input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;"><br>
+<input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;">
 
 
 

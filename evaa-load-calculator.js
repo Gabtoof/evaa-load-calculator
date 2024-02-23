@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Setup listeners for radio button groups
-    ['ac', 'dishwasher', 'hottub', 'infloor_heat'].forEach(function(feature) {
+    // ['ac', 'dishwasher', 'hottub', 'infloor_heat'].forEach(function(feature) {
+    ['ac', 'hottub', 'infloor_heat'].forEach(function(feature) {
         setupRadioListeners(feature);
         // Initial visibility setup based on the selected radio button
         var isChecked = document.querySelector('input[name="' + feature + '"]:checked').value === 'yes';
