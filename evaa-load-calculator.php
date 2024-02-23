@@ -328,7 +328,7 @@ if($message) {
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" required><br>
 
     <label for="home_size_mainlivingarea">Approx size of home (developed/livable area, excluding basement):</label>
-    <input type="number" id="home_size_mainlivingarea" name="home_size_mainlivingarea" required>
+    <input type="number" id="home_size_mainlivingarea" name="home_size_mainlivingarea" required><br>
     <label for="home_size_basement">Approx size of basement (if applicable):</label>
     <input type="number" id="home_size_basement" name="home_size_basement">
     <select name="home_size_unit">
