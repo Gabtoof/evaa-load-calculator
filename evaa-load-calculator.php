@@ -33,6 +33,8 @@ Author: Andrew Baituk
 
 */
 
+
+
 // Enqueue the JS script
 function evaa_load_calculator_scripts() {
     // Use the WordPress built-in script versioning for cache-busting
@@ -56,12 +58,20 @@ function load_calculator_form_shortcode() {
 
 
 
+
+
+session_start(); // Ensure session_start() is called at the beginning
+
+
+
 // Initialize variables with default values
 $home_size_unit = "sqft"; // Replace 'default_unit' with whatever default value you deem appropriate
 $home_size = 0; // Default to 0, or any other appropriate value
 $ac_load = 0;
 $heating_load = 0;
 $output = ""; // Initialize output buffer
+
+
 
 // Check if the keys exist in the $_POST data and assign them
 if (isset($_POST['home_size_unit'])) {
@@ -351,11 +361,6 @@ if($remaining_capacity >= $ev_charger_load) {
 
 }
 
-// The HTML form and display results sections can then follow as previously described.
-// Display feedback message after form submission
-if($message) {
-    echo "<p>" . $message . "</p>";
-}
 
 // Your HTML form
 ?>
@@ -484,8 +489,20 @@ if($message) {
 
 
     <?php
-echo $output; // Display all collected messages
+
+// The HTML form and display results sections can then follow as previously described.
+// Display feedback message after form submission
+if($message) {
+    echo "<p>" . $message . "</p>" ;
+}
+
+
+echo "<p>Debug Output:<br>" . $output . "</p>";
+//echo $output; // Display all collected messages
+
+
     
     return ob_get_clean(); // End output buffering and return everything
 }
+
 add_shortcode('load_calculator', 'load_calculator_form_shortcode'); 
