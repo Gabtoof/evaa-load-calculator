@@ -61,6 +61,7 @@ $home_size_unit = "sqft"; // Replace 'default_unit' with whatever default value 
 $home_size = 0; // Default to 0, or any other appropriate value
 $ac_load = 0;
 $heating_load = 0;
+$output = ""; // Initialize output buffer
 
 // Check if the keys exist in the $_POST data and assign them
 if (isset($_POST['home_size_unit'])) {
@@ -84,14 +85,15 @@ $panel_capacity_amps = intval($_POST['panel_capacity_amps']);
 // Convert to Watts (assuming 240V)
 $panel_capacity = $panel_capacity_amps * 240;
 
-echo "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
+//echo "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
+$output .= "Original Home Size: " . $home_size . " " . $home_size_unit . "<br>";
 
 // Convert home size to m² and sqft
 $home_size_m2 = ($home_size_unit == "sqft") ? $home_size * 0.092903 : $home_size;
 $home_size_sqft = ($home_size_unit == "m2") ? $home_size * 10.764 : $home_size;
 
-echo "Converted Home Size in m2: " . $home_size_m2 . " m2<br>";
-echo "Converted Home Size in sqft: " . $home_size_sqft . " sqft<br>";
+$output .= "Converted Home Size in m2: " . $home_size_m2 . " m2<br>";
+$output .= "Converted Home Size in sqft: " . $home_size_sqft . " sqft<br>";
 
 // Living Area load calculation based on m²
 // Accepting that this doesn't factor in 75% for basements. That adds complexity to user and this will give us only a slightly more 'conservative' result (more likely to say EV charger may not 'fit')
@@ -101,12 +103,12 @@ $total_load += 5000;
 $total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
 }
   
-echo "Base Living Area Load: 5000W<br>";
-echo "Additional Living Area Load: " . ($total_load - 5000) . "W<br>";
-echo "Total Living Area Load: " . $total_load . "W<br>";
+$output .= "Base Living Area Load: 5000W<br>";
+$output .= "Additional Living Area Load: " . ($total_load - 5000) . "W<br>";
+$output .= "Total Living Area Load: " . $total_load . "W<br>";
 
 // Before heating/AC calculation
-echo "Load before heating calculation: " . $total_load . "W<br>";
+$output .= "Load before heating calculation: " . $total_load . "W<br>";
 // Heating
 
 $heating_type = $_POST['heating'];
@@ -165,16 +167,16 @@ if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
 if ($ac_load > $heating_load) {
     $total_load += $ac_load;
     // Debugging output
-    echo "AC Load is larger. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
+    $output .= "AC Load is larger. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
 } else {
     $total_load += $heating_load;
     // Debugging output
-    echo "Heating Load is larger or equal. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
+    $output .= "Heating Load is larger or equal. AC Load: {$ac_load} Watts, Heating Load: {$heating_load} Watts, Total Load: {$total_load} Watts.";
 }
 
-echo "Load After HVAC calculation: " . $total_load . "W<br>";
+$output .= "Load After HVAC calculation: " . $total_load . "W<br>";
 
-echo "Load before Stove calculation: " . $total_load . "W<br>";
+$output .= "Load before Stove calculation: " . $total_load . "W<br>";
 // Stove
 $stove_type = $_POST['stove'];
 
@@ -199,16 +201,16 @@ switch($stove_type) {
 }
 // Flag to indicate if the electric stove is selected
 $isElectricStoveSelected = ($stove_type === "electric");
-echo "Stove Type: " . $stove_type . "<br>";
+$output .= "Stove Type: " . $stove_type . "<br>";
 $isElectricStoveSelected = ($stove_type === "electric");
-echo "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
+$output .= "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
 
 
 
-echo "Load after Stove calculation: " . $total_load . "W<br>";
+$output .= "Load after Stove calculation: " . $total_load . "W<br>";
 
 
-echo "Load before Water Heater calculation: " . $total_load . "W<br>";
+$output .= "Load before Water Heater calculation: " . $total_load . "W<br>";
 
 // Water Heater
 $water_heater_type = $_POST['water_heater'];
@@ -219,8 +221,8 @@ switch($water_heater_type) {
         // if electric stove, only use 25%
         $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; // Default wattage for electric water heater
         $total_load += $loadToAdd; 
-        echo "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        echo "Load to Add: " . $loadToAdd . "W<br>";
+        $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
+        $output .= "Load to Add: " . $loadToAdd . "W<br>";
         break;
     case "gas":
         
@@ -240,9 +242,9 @@ switch($water_heater_type) {
         break;
 }
 
-echo "Load after Water Heater calculation: " . $total_load . "W<br>";
+$output .= "Load after Water Heater calculation: " . $total_load . "W<br>";
 
-echo "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
+$output .= "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
 
 // Clothes Dryer
 $clothes_dryer_type = $_POST['clothes_dryer'];
@@ -255,8 +257,8 @@ switch($clothes_dryer_type) {
         $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; //80% of 30A circuit
         $total_load += $loadToAdd;
         // Debugging Echoes
-        echo "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        echo "Load to Add: " . $loadToAdd . "W<br>";
+        $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
+        $output .= "Load to Add: " . $loadToAdd . "W<br>";
         break;
     case "gas":
         $total_load += 0; // covered under base load
@@ -272,7 +274,7 @@ switch($clothes_dryer_type) {
     // Add cases for other types if necessary
 }
 
-echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
+$output .= "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
 
 
 
@@ -293,7 +295,7 @@ echo "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
 
 
 
-echo "Load before Hot Tub calculation: " . $total_load . "W<br>";
+$output .= "Load before Hot Tub calculation: " . $total_load . "W<br>";
 // hottub
 // https://homeinspectioninsider.com/how-many-amps-does-a-hot-tub-use/
 if(isset($_POST['hottub']) && $_POST['hottub'] === 'yes') {
@@ -304,8 +306,8 @@ if(isset($_POST['hottub']) && $_POST['hottub'] === 'yes') {
     }
     $total_load += $hottub_wattage;
 }
-echo "Load after Hot Tub calculation: " . $total_load . "W<br>";
-echo "Load before Infloor Heating calculation: " . $total_load . "W<br>";
+$output .= "Load after Hot Tub calculation: " . $total_load . "W<br>";
+$output .= "Load before Infloor Heating calculation: " . $total_load . "W<br>";
 // infloor_heat
 // https://thehomeans.com/how-many-amps-does-a-heated-floor-use/#What%20Size%20Breaker%20Do%20I%20Need%20For%20Underfloor%20Heating?
 
@@ -318,7 +320,7 @@ if(isset($_POST['infloor_heat']) && $_POST['infloor_heat'] === 'yes') {
     }
     $total_load += $infloor_heat_wattage;
 }
-echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
+$output .= "Load after Infloor Heating calculation: " . $total_load . "W<br>";
 
 
 
@@ -333,9 +335,9 @@ echo "Load after Infloor Heating calculation: " . $total_load . "W<br>";
     // Calculate remaining capacity
     $remaining_capacity = $panel_capacity - $total_load;
 
-echo "Panel Capacity: " . $panel_capacity . "W<br>";
-echo "Total Load: " . $total_load . "W<br>";
-echo "Remaining Capacity: " . $remaining_capacity . "W<br>";
+$output .= "Panel Capacity: " . $panel_capacity . "W<br>";
+$output .= "Total Load: " . $total_load . "W<br>";
+$output .= "Remaining Capacity: " . $remaining_capacity . "W<br>";
 
     // EV Charger Load (placeholder value)
     $ev_charger_load = 7000; // Replace with the typical load of the EV charger you're considering
@@ -482,6 +484,7 @@ if($message) {
 
 
     <?php
+echo $output; // Display all collected messages
     
     return ob_get_clean(); // End output buffering and return everything
 }
