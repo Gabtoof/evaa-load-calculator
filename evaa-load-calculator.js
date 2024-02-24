@@ -72,3 +72,23 @@ document.addEventListener('DOMContentLoaded', function() {
         setupToggleListener(toggleId, 'user_provided_' + toggleId + '_wattage');
     });
 });
+
+// JavaScript function to set the selected heating option
+function selectHeating(option) {
+    document.getElementById('heating').value = option;
+}
+
+
+
+function selectWaterHeater(option) {
+    document.getElementById('water_heater').value = option;
+    
+    // Show/hide the input field for user-provided wattage based on the selected option
+    if (option === 'water_heater_wattage') {
+        document.getElementById('user_provided_water_heater_wattage_label').style.display = 'block';
+        document.getElementById('user_provided_water_heater_wattage').style.display = 'block';
+    } else {
+        document.getElementById('user_provided_water_heater_wattage_label').style.display = 'none';
+        document.getElementById('user_provided_water_heater_wattage').style.display = 'none';
+    }
+}

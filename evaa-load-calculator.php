@@ -31,6 +31,10 @@ Author: Andrew Baituk
 [ ] get someone to double check logic
 [ ] add disclaimers/etc
 [ ] make pretty
+[ ] fix water heater icons
+[ ] make icons more consistant background or something
+[ ] ensure icons look 'selected'
+[ ] hover over glow on icons
 
 */
 
@@ -454,9 +458,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
             background-color: #f2f2f2;
             padding: 20px;
             border-radius: 5px;
-            max-width: 600px;
+            max-width: 1000px;
             margin: auto;
         }
+
         /* Flex container for label and input */
   
         /* Input, Select fields, and Textarea styling */
@@ -499,15 +504,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
         .form-class input[type="submit"].reset-button:hover {
             background-color: #ccac00; /* Darker Yellow */
         }
+        .image-buttons {
+        width: 150px; /* Adjust as needed */
+        height: 150px; /* Adjust as needed */
+        cursor: pointer;
+        margin-right: 10px; /* Adjust as needed */
+    }
+        /* Style for the image icon containers */
+        .image-buttons-div {
+        display: inline-block;
+        text-align: center;
+        margin-right: 10px; /* Adjust as needed */
+    }
+
+    /* Style for the image icons */
+    .image-buttons {
+        width: 150px; /* Adjust as needed */
+        height: 150px; /* Adjust as needed */
+        cursor: pointer;
+    }
+
+    /* Style for the alt text */
+    .alt-text {
+        margin-top: 5px; /* Adjust as needed */
+    }
+
+
     </style>
 <div class="form-class">
 <form action="" method="post">
    
     <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">Panel Capacity: </label>
-    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="100" required>Amps<br>
+    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required>Amps<br>
 
     <label for="home_size">Approx size of home:</label>
-    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="1500">
+    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="input value">
     <select name="home_size_unit">
     <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
     <option value="m2" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'm2') ? 'selected' : ''; ?>>m²</option>
@@ -522,6 +553,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <option value="air_heat_pump" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'air_heat_pump') ? 'selected' : ''; ?>>Air Source Heat Pump</option>
     <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>I'll provide nameplate wattage:</option>
 </select>
+<div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/g2.png" alt="Gas Furnace" onclick="selectHeating('gas')">
+        <div class="alt-text">Gas Furnace</div>
+    </div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/g3.png" alt="Electric Furnace" onclick="selectHeating('electric')">
+        <div class="alt-text">Electric Furnace</div>
+    </div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/gemini1.png" alt="Air Source Heat Pump" onclick="selectHeating('air_heat_pump')">
+        <div class="alt-text">Air Source Heat Pump</div>
+    </div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/gcustom2.png" alt="Input Own Wattage" onclick="selectHeating('heating_wattage')">
+        <div class="alt-text">Air Source Heat Pump</div>
+    </div>
+</div>
+<input type="hidden" id="heating" name="heating">
 
 
         <!-- removing until we can find a good source of data
@@ -554,6 +604,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 <label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Watts:</label>
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
 <br>
+
+<input type="hidden" name="water_heater" id="water_heater">
+
+
+
+<!-- Water Heater Type selection using clickable images -->
+<label for="water_heater">Water Heater Type:</label>
+<div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/Gemini_Generated_Image-1.jpg" alt="Gas Water Heater" onclick="selectWaterHeater('gas')">
+        <div class="alt-text">Gas Water Heater</div>
+    </div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/Gemini_Generated_Image-2.jpg" alt="Electric Water Heater" onclick="selectWaterHeater('electric')">
+        <div class="alt-text">Electric Water Heater</div>
+    </div>
+    <div class="image-buttons-div">
+        <img class="image-buttons" src="wp-content/uploads/2024/02/gcustom2.png" alt="Input Own Wattage" onclick="selectWaterHeater('water_heater_wattage')">
+        <div class="alt-text">Input Own Wattage</div>
+    </div>
+</div>
+
+
 
 <label for="clothes_dryer">Clothes Dryer Type:</label>
 <select name="clothes_dryer" id="clothes_dryer">
@@ -634,14 +707,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <?php
 
 // The HTML form and display results sections can then follow as previously described.
+
 // Display feedback message after form submission
 if($message) {
-    echo "<p>" . $message . "</p>" ;
+    echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
+    echo "<p>" . $message . "</p>";
+    echo '</div>';
 }
 
-
+// Wrap the output in a container div and apply CSS to center it
+echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
 echo "<p>Output:<br>" . $output . "</p>";
-//echo $output; // Display all collected messages
+echo '</div>';
+
 
 
     
