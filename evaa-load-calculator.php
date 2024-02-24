@@ -448,14 +448,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     exit;
 }
 ?>
+        <style>
+        /* General form styling */
+        .form-class {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: auto;
+        }
+        /* Flex container for label and input */
+  
+        /* Input, Select fields, and Textarea styling */
+        .form-class input[type="number"],
+        .form-class input[type="email"],
+        .form-class select,
+        .form-class textarea {
+            width: 35%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            
+        }
 
+        /* Submit button styling */
+        .form-class input[type="submit"] {
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .form-class input[type="submit"]:hover {
+            background-color: #45a049; /* Darker Green */
+        }
+
+        /* Reset button styling, using type="submit" */
+        .form-class input[type="submit"].reset-button {
+            background-color: #FFD700; /* Yellow */
+            color: white;
+        }
+
+        .form-class input[type="submit"].reset-button:hover {
+            background-color: #ccac00; /* Darker Yellow */
+        }
+    </style>
+<div class="form-class">
 <form action="" method="post">
    
     <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">Panel Capacity: </label>
-    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" required>Amps<br>
+    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="100" required>Amps<br>
 
     <label for="home_size">Approx size of home:</label>
-    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>">
+    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="1500">
     <select name="home_size_unit">
     <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
     <option value="m2" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'm2') ? 'selected' : ''; ?>>m²</option>
@@ -565,8 +617,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     
 
 
-<input type="submit" name="reset" value="Reset" formnovalidate></form>
-
+<input type="submit" name="reset" value="Reset" class="reset-button"  formnovalidate></form>
+    </div>
 
 
 
