@@ -415,7 +415,7 @@ if (!$best_fit_charger) {
         foreach (array_reverse($ev_chargers) as $charger) {
             if ($temp_capacity >= $charger['wattage']) {
                 $best_fit_charger = $charger;
-                $shared_circuit_message = " by sharing the circuit with your $appliance";
+                $shared_circuit_message = " This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger";
                 break 2; // Found a suitable charger with sharing, exit both loops
             }
         }
@@ -426,7 +426,7 @@ if (!$best_fit_charger) {
 if ($best_fit_charger) {
     $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg\" alt=\"Green checkmark\" width=\"20\" height=\"20\">
     <strong>The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['kW']}kW), " .
-               "adding rougly {$best_fit_charger['kmPerHour']}km/h with a full charge in {$best_fit_charger['fullChargeTime']}$shared_circuit_message for a typical electric sedan. </strong><br>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
+               "adding rougly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message. </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
 } else {
     $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
     <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger.</strong>";
