@@ -71,6 +71,9 @@ $home_size = 0; // Default to 0, or any other appropriate value
 $ac_load = 0;
 $heating_load = 0;
 $output = ""; // Initialize output buffer
+$clothes_dryer_w = 0;
+$water_heater_w = 0;
+$stove_w = 0;
 
 
 
@@ -235,6 +238,7 @@ $isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove
 
 // Output the stove type
 $output .= "Stove Type: " . $stove_type . "<br>";
+$output .= "Stove wattage " . $stove_w . "W<br>";
 
 // Output whether an electric stove is selected, considering both "electric" and "stove_wattage" as valid conditions
 $output .= "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
@@ -253,6 +257,7 @@ switch($water_heater_type) {
         // if electric stove, only use 25%
         $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; // Default wattage for electric water heater
         $total_load += $loadToAdd; 
+        $water_heater_w = $loadToAdd;
         $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
         $output .= "Load to Add: " . $loadToAdd . "W<br>";
         break;
@@ -268,6 +273,7 @@ switch($water_heater_type) {
             // Apply the 25% rule if electric stove is selected
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
+            $water_heater_w = $loadToAdd;
             $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
             $output .= "Custom Water Heater Wattage: " . $user_provided_wattage . "W<br>";
             $output .= "Load to Add (after adjustment if applicable): " . $loadToAdd . "W<br>";
@@ -277,7 +283,7 @@ switch($water_heater_type) {
         // Optionally handle unexpected cases
         break;
 }
-
+$output .= "Water Heater wattage: " . $water_heater_w . "W<br>";
 $output .= "Load after Water Heater calculation: " . $total_load . "W<br>";
 
 $output .= "Load before Clothes Dryer calculation: " . $total_load . "W<br>";
@@ -292,7 +298,7 @@ switch($clothes_dryer_type) {
         //$loadToAdd = $isElectricStoveSelected ? (5600 * 0.25) : 5600; 
         $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; //80% of 30A circuit
         $total_load += $loadToAdd;
-        $clothes_dryer_w = $loadToAdd
+        $clothes_dryer_w = $loadToAdd;
         // Debugging Echoes
         $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
         $output .= "Load to Add: " . $loadToAdd . "W<br>";
@@ -308,13 +314,13 @@ switch($clothes_dryer_type) {
             $user_provided_wattage = intval($_POST['user_provided_clothes_dryer_wattage']);
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
-            $clothes_dryer_w = $loadToAdd
+            $clothes_dryer_w = $loadToAdd;
             $output .= "Custom Clothes Dryer Wattage: " . $loadToAdd . "W<br>";
         }
         break;
     // Add cases for other types if necessary
 }
-
+$output .= "Clothes Dryer wattage: " . $clothes_dryer_w . "W<br>";
 $output .= "Load after Clothes Dryer calculation: " . $total_load . "W<br>";
 
 
@@ -385,27 +391,49 @@ $output .= "Remaining Capacity: " . $remaining_capacity . "W<br>";
 
 }
 
-// Find the best fit EV charger based on remaining capacity
+// Assuming all required variables ($remaining_capacity, $stove_w, $clothes_dryer_w, $water_heater_w, and $ev_chargers) are defined above this snippet.
+
 $best_fit_charger = null;
+$shared_circuit_message = "";
+
+// Try to find a charger that fits without sharing circuits
 foreach (array_reverse($ev_chargers) as $charger) {
-    if ($remaining_capacity >= $charger["wattage"]) {
+    if ($remaining_capacity >= $charger['wattage']) {
         $best_fit_charger = $charger;
-        break; // Found the highest possible charger that fits
+        break; // Found a suitable charger without sharing
     }
 }
 
-// Construct the message based on the best fit charger found
+// If no charger fits, try considering sharing circuits with high-wattage appliances
+if (!$best_fit_charger) {
+    $appliance_wattages = [
+        'stove' => $stove_w,
+        'clothes dryer' => $clothes_dryer_w,
+        'water heater' => $water_heater_w
+    ];
+
+    foreach ($appliance_wattages as $appliance => $wattage) {
+        $temp_capacity = $remaining_capacity + $wattage; // Consider sharing the circuit
+        foreach (array_reverse($ev_chargers) as $charger) {
+            if ($temp_capacity >= $charger['wattage']) {
+                $best_fit_charger = $charger;
+                $shared_circuit_message = " by sharing the circuit with your $appliance";
+                break 2; // Found a suitable charger with sharing, exit both loops
+            }
+        }
+    }
+}
+
+// Construct the output message
 if ($best_fit_charger) {
-    $message = "Based on your remaining capacity of {$remaining_capacity}W, the best fit EV charger is: " .
-               "{$best_fit_charger["amperage"]}A ({$best_fit_charger["wattage"]}W), adding " .
-               "{$best_fit_charger["kmPerHour"]}km/h with a full charge in " .
-               "{$best_fit_charger["fullChargeTime"]}.";
+    $message = "The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['wattage']}W), " .
+               "adding {$best_fit_charger['kmPerHour']}km/h with a full charge in {$best_fit_charger['fullChargeTime']}$shared_circuit_message.";
 } else {
-    $message = "Based on the provided details and your remaining capacity of {$remaining_capacity}W, " .
-               "you might need to upgrade your panel to add an EV charger.";
+    $message = "Based on the provided details, you might need to upgrade your panel to add an EV charger.";
 }
 
 echo $message;
+
 
 
 
