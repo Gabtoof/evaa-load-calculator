@@ -432,7 +432,7 @@ if ($best_fit_charger) {
     $message = "Based on the provided details, you might need to upgrade your panel to add an EV charger.";
 }
 
-echo $message;
+
 
 
 
@@ -452,25 +452,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 <form action="" method="post">
    
     <label for="panel_capacity_amps">Panel Capacity (in Amps):</label>
-    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" required><br>
+    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" required><br>
 
     <label for="home_size">Approx size of home (developed/livable area):</label>
-    <input type="number" id="home_size" name="home_size" required>
+    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>">
     <select name="home_size_unit">
-        <option value="sqft">sq ft</option>
-        <option value="m2">m²</option>
-    </select>
+    <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
+    <option value="m2" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'm2') ? 'selected' : ''; ?>>m²</option>
+</select>
+
     <br>
 
     <label for="heating">Heating Type:</label>
-    <select name="heating" id="heating">
-        <option value="gas">Gas Furnace</option>
-        <option value="electric">Electric Furnace</option>
-        <option value="air_heat_pump">Air Source Heat Pump</option>
+<select name="heating" id="heating">
+    <option value="gas" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'gas') ? 'selected' : ''; ?>>Gas Furnace</option>
+    <option value="electric" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'electric') ? 'selected' : ''; ?>>Electric Furnace</option>
+    <option value="air_heat_pump" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'air_heat_pump') ? 'selected' : ''; ?>>Air Source Heat Pump</option>
+    <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>I'll provide nameplate wattage:</option>
+</select>
+
+
         <!-- removing until we can find a good source of data
         <option value="geo_heat_pump">Geothermal Heat Pump</option> 
         <option value="boiler">Boiler System</option> -->
-        <option value="heating_wattage">I'll provide nameplate wattage:</option>
+        
         <!-- Input field for heating wattage -->
         
     </select>
@@ -583,7 +588,7 @@ if($message) {
 }
 
 
-echo "<p>Debug Output:<br>" . $output . "</p>";
+echo "<p>Output:<br>" . $output . "</p>";
 //echo $output; // Display all collected messages
 
 
