@@ -97,13 +97,14 @@ $message = "";
 
 
 // Define the array of EV chargers
+// https://evadept.com/calc/ev-charging-time-calculator
 $ev_chargers = [
-    ["amperage" => 12, "wattage" => 2800, "kW" => 2.8,  "kmPerHour" => 19, "fullChargeTime" => "approx 14h"],
-    ["amperage" => 16, "wattage" => 3800, "kW" => 3.8,  "kmPerHour" => 24, "fullChargeTime" => "approx 10.75h"],
-    ["amperage" => 24, "wattage" => 5700, "kW" => 5.7,  "kmPerHour" => 37, "fullChargeTime" => "approx 7h"],
-    ["amperage" => 32, "wattage" => 7600, "kW" => 7.6,  "kmPerHour" => 50, "fullChargeTime" => "approx 5.25h"],
-    ["amperage" => 40, "wattage" => 9600, "kW" => 9.6,  "kmPerHour" => 61, "fullChargeTime" => "approx 4.25h"],
-    ["amperage" => 48, "wattage" => 11500, "kW" => 11.5, "kmPerHour" => 74, "fullChargeTime" => "approx 3.5h"]
+    ["amperage" => 12, "wattage" => 2800, "kW" => 2.8,  "kmPerHour" => 19, "fullChargeTime" => "approx 21h"],
+    ["amperage" => 16, "wattage" => 3800, "kW" => 3.8,  "kmPerHour" => 24, "fullChargeTime" => "approx 16.25h"],
+    ["amperage" => 24, "wattage" => 5700, "kW" => 5.7,  "kmPerHour" => 37, "fullChargeTime" => "approx 10.5h"],
+    ["amperage" => 32, "wattage" => 7600, "kW" => 7.6,  "kmPerHour" => 50, "fullChargeTime" => "approx 8h"],
+    ["amperage" => 40, "wattage" => 9600, "kW" => 9.6,  "kmPerHour" => 61, "fullChargeTime" => "approx 6.5h"],
+    ["amperage" => 48, "wattage" => 11500, "kW" => 11.5, "kmPerHour" => 74, "fullChargeTime" => "approx 5.25h"]
 ];
 
 // If the form has been submitted
