@@ -567,7 +567,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
         .form-class select,
         .form-class textarea,
         .form-class #heating {
-            width: 44%; /* Make input fields, select boxes, and heating dropdown fill the container */
+            width: 60%; /* Make input fields, select boxes, and heating dropdown fill the container */
         }
 
         /* Custom adjustments for specific fields to be narrower */
@@ -603,7 +603,7 @@ label[id$="_wattage_label"] {
 
     <br>
 
-    <label for="heating">Heating Type:</label>
+    <label for="heating">Heating:</label>
 <select name="heating" id="heating">
     <option value="gas" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'gas') ? 'selected' : ''; ?>>Gas Furnace</option>
     <option value="electric" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'electric') ? 'selected' : ''; ?>>Electric Furnace</option>
@@ -633,7 +633,7 @@ label[id$="_wattage_label"] {
 
 
 
-    <label for="water_heater">Water Heater Type:</label>
+    <label for="water_heater">Water Heater:</label>
 <select name="water_heater" id="water_heater">
     <option value="gas" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
     <option value="electric" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
@@ -644,13 +644,13 @@ label[id$="_wattage_label"] {
 <label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Provide Water Heater Value (W):</label>
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
 </div>
-<br>
 
 
 
 
 
-<label for="clothes_dryer">Clothes Dryer Type:</label>
+
+<label for="clothes_dryer">Dryer:</label>
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
     <option value="electric" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
@@ -664,7 +664,7 @@ label[id$="_wattage_label"] {
 </div>
 
 
-<br>
+
 
 <label for="ac_yes">Do you have Air Conditioning?</label>
 <input type="radio" id="ac_yes" name="ac" value="yes" >
