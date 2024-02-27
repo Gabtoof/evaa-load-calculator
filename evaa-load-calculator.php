@@ -325,7 +325,7 @@ switch($clothes_dryer_type) {
             $clothes_dryer_w = $loadToAdd;
             $output .= "Custom Clothes Dryer Wattage: " . $user_provided_wattage . " W<br>";
             $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable):: " . $loadToAdd . " W<br>";
+            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
             
         }
         break;
@@ -491,15 +491,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     exit; // Exit script execution
   }
   
-  // Handle clothes dryer selection (if submitted)
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($_POST['clothes_dryer'] === 'clothes_dryer_wattage') {
-      $_SESSION['user_specified_wattage'] = 'clothes_dryer_wattage';
-    } else {
-      // Unset session variable if not selected
-      unset($_SESSION['user_specified_wattage']);
-    }
-  }
+//   // Handle clothes dryer selection (if submitted)
+//   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//     if ($_POST['clothes_dryer'] === 'clothes_dryer_wattage') {
+//       $_SESSION['user_specified_wattage'] = 'clothes_dryer_wattage';
+//     } else {
+//       // Unset session variable if not selected
+//       unset($_SESSION['user_specified_wattage']);
+//     }
+//   }
 
 // below was working. commented out as trying to hide/show fields
 // if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
@@ -510,69 +510,93 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 ?>
 
         
-        <style>
-        /* General form styling */
-        .form-class {
-            background-color: #f2f2f2;
-            padding: 20px;
-            border-radius: 5px;
-            max-width: 1000px;
-            margin: auto;
-        }
+<style>
+    /* General form styling */
+    .form-class {
+        background-color: #f2f2f2;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 1000px;
+        margin: auto;
+    }
 
-        /* Flex container for label and input */
-  
-        /* Input, Select fields, and Textarea styling */
+    /* Input, Select fields, and Textarea styling */
+    .form-class input[type="number"],
+    .form-class input[type="email"],
+    .form-class select,
+    .form-class textarea {
+        width: 35%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    /* Submit button styling */
+    .form-class input[type="submit"] {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .form-class input[type="submit"]:hover {
+        background-color: #45a049; /* Darker Green */
+    }
+
+    /* Reset button styling, using type="submit" */
+    .form-class input[type="submit"].reset-button {
+        background-color: #FFD700; /* Yellow */
+        color: white;
+    }
+
+    .form-class input[type="submit"].reset-button:hover {
+        background-color: #ccac00; /* Darker Yellow */
+    }
+
+    /* Media query for devices with width less than or equal to 600px */
+    @media screen and (max-width: 600px) {
         .form-class input[type="number"],
         .form-class input[type="email"],
         .form-class select,
-        .form-class textarea {
-            width: 35%;
-            padding: 12px 20px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            
+        .form-class textarea,
+        .form-class #heating {
+            width: 44%; /* Make input fields, select boxes, and heating dropdown fill the container */
         }
 
-        /* Submit button styling */
-        .form-class input[type="submit"] {
-            background-color: #4CAF50; /* Green */
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
+        /* Custom adjustments for specific fields to be narrower */
+        .form-class #panel_capacity_amps,
+        .form-class #home_size,
+        .form-class #home_size_unit {
+            width: calc(35% - 24px); /* Adjusted width for these elements */
         }
+    }
+    /* Get certain itmes together on same line*/
+    .input-container {
+    display: flex;
+    align-items: center;
+}
+label[id$="_wattage_label"] {
+    margin-right: 8px; /* Adjust the value as needed */
+}
 
-        .form-class input[type="submit"]:hover {
-            background-color: #45a049; /* Darker Green */
-        }
+</style>
 
-        /* Reset button styling, using type="submit" */
-        .form-class input[type="submit"].reset-button {
-            background-color: #FFD700; /* Yellow */
-            color: white;
-        }
-
-        .form-class input[type="submit"].reset-button:hover {
-            background-color: #ccac00; /* Darker Yellow */
-
-
-    </style>
 <div class="form-class">
 <form action="" method="post" id="calcForm">
    
     <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">Panel Capacity: </label>
-    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required>Amps<br>
+    <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required> Amps<br>
 
-    <label for="home_size">Approx size of home:</label>
+    <label for="home_size">Size of home:</label>
     <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="input value">
-    <select name="home_size_unit">
+    <select name="home_size_unit" id="home_size_unit">
     <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
     <option value="m2" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'm2') ? 'selected' : ''; ?>>m²</option>
 </select>
@@ -601,9 +625,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <option value="stove_wattage" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'stove_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
     <!-- Input field for user-provided stove wattage -->
-    <label for="user_provided_stove_wattage" id="user_provided_stove_wattage_label" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display:none;'; ?>">Watts:</label>
-    <input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display: none;'; ?>"><br>
-    
+    <div class="input-container" id="stove_wattage_container">
+    <label for="user_provided_stove_wattage" id="user_provided_stove_wattage_label" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display:none;'; ?>">Provide Stove Value (W):</label>
+    <input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display: none;'; ?>">
+</div>
+
+
 
 
     <label for="water_heater">Water Heater Type:</label>
@@ -613,8 +640,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <option value="water_heater_wattage" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'stove_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
 <!-- Input field for user-entered wattage -->
-<label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Watts:</label>
+<div class="input-container" id="water_heater_wattage_container">
+<label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Provide Water Heater Value (W):</label>
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
+</div>
 <br>
 
 
@@ -629,9 +658,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <option value="clothes_dryer_wattage" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'clothes_dryer_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
-<label for="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage_label" style="display: none;">Watts:</label>
+<div class="input-container" id="clothes_dryer_wattage_container">
+<label for="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage_label" style="display: none;">Provide Dryer Value (W):</label>
 <input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage"  value="<?php echo isset($_POST['user_provided_clothes_dryer_wattage']) ? $_POST['user_provided_clothes_dryer_wattage'] : ''; ?>" style="display: none;"><br>
-
+</div>
 
 
 <br>
@@ -642,7 +672,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 <input type="radio" id="ac_no" name="ac" value="no"  checked>
 <label for="ac_no">No</label><br>
 
-<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
+<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
 <input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;">
 
 
@@ -662,7 +692,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <label for="hottub_yes">Yes</label>
     <input type="radio" id="hottub_no" name="hottub" value="no" checked>
     <label for="hottub_no">No</label><br>
-    <label for="user_provided_hottub_wattage" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
+    <label for="user_provided_hottub_wattage" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
 <input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;">
 
 
@@ -672,7 +702,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <label for="infloor_heat_yes">Yes</label>
     <input type="radio" id="infloor_heat_no" name="infloor_heat" value="no" checked>
     <label for="infloor_heat_no">No</label><br>
-    <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use default or provide equipment's nameplate watt rating:</label>
+    <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
 <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
 
 
@@ -696,98 +726,113 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 
 
     <script>
-    document.addEventListener("DOMContentLoaded", function() {
-  function handleFeatureChange(feature, wattageInputId) {
-    const featureSelection = document.querySelector(`input[name="${feature}"]:checked`)?.value;
-    const wattageField = document.getElementById(wattageInputId);
-    const wattageLabel = document.querySelector(`label[for="${wattageInputId}"]`);
+document.addEventListener("DOMContentLoaded", function() {
+    function handleFeatureChange(feature, wattageInputId) {
+        const featureSelection = document.querySelector(`input[name="${feature}"]:checked`)?.value;
+        const wattageField = document.getElementById(wattageInputId);
+        const wattageLabel = document.querySelector(`label[for="${wattageInputId}"]`);
 
-    if (featureSelection === 'yes') {
-      wattageField.style.display = 'block';
-      wattageLabel.style.display = 'block';
-      wattageField.value = localStorage.getItem(`${feature}Wattage`) || '';
-    } else {
-      wattageField.style.display = 'none';
-      wattageLabel.style.display = 'none';
-    }
-
-    document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
-      input.addEventListener('change', () => {
-        const selectedValue = document.querySelector(`input[name="${feature}"]:checked`).value;
-        localStorage.setItem(`${feature}Selection`, selectedValue);
-        handleFeatureChange(feature, wattageInputId);
-      });
-    });
-
-    wattageField.addEventListener('input', () => {
-      localStorage.setItem(`${feature}Wattage`, wattageField.value);
-    });
-  }
-
-  function handleDropdownChange(dropdownId, customValue, wattageInputId, wattageLabelId) {
-    const dropdown = document.getElementById(dropdownId);
-    const wattageInput = document.getElementById(wattageInputId);
-    const wattageLabel = document.getElementById(wattageLabelId);
-
-    dropdown.addEventListener('change', function() {
-      if (this.value === customValue) {
-        wattageInput.style.display = 'block';
-        wattageLabel.style.display = 'block';
-      } else {
-        wattageInput.style.display = 'none';
-        wattageLabel.style.display = 'none';
-      }
-      localStorage.setItem(`${dropdownId}Selection`, this.value);
-    });
-
-    const savedSelection = localStorage.getItem(`${dropdownId}Selection`) || dropdown.value;
-    if (savedSelection === customValue) {
-      wattageInput.style.display = 'block';
-      wattageLabel.style.display = 'block';
-    } else {
-      wattageInput.style.display = 'none';
-      wattageLabel.style.display = 'none';
-    }
-    dropdown.value = savedSelection;
-
-    wattageInput.addEventListener('input', function() {
-      localStorage.setItem(`${wattageInputId}Value`, this.value);
-    });
-
-    const savedWattage = localStorage.getItem(`${wattageInputId}Value`);
-    if (savedWattage) {
-      wattageInput.value = savedWattage;
-    }
-  }
-
-  function initForm() {
-    ['ac', 'hottub', 'infloor_heat'].forEach(feature => {
-      const selection = localStorage.getItem(`${feature}Selection`) || 'no';
-      document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
-        if (input.value === selection) {
-          input.checked = true;
+        if (featureSelection === 'yes') {
+            wattageField.style.display = 'block';
+            wattageLabel.style.display = 'block';
+            wattageField.value = localStorage.getItem(`${feature}Wattage`) || '';
+        } else {
+            wattageField.style.display = 'none';
+            wattageLabel.style.display = 'none';
         }
-      });
 
-      const wattageInputId = `user_provided_${feature}_wattage`;
-      handleFeatureChange(feature, wattageInputId);
+        document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
+            input.addEventListener('change', () => {
+                const selectedValue = document.querySelector(`input[name="${feature}"]:checked`).value;
+                localStorage.setItem(`${feature}Selection`, selectedValue);
+                handleFeatureChange(feature, wattageInputId);
+            });
+        });
+
+        wattageField.addEventListener('input', () => {
+            localStorage.setItem(`${feature}Wattage`, wattageField.value);
+        });
+    }
+
+    function handleDropdownChange(dropdownId, customValue, wattageInputId, wattageLabelId) {
+        const dropdown = document.getElementById(dropdownId);
+        const wattageInput = document.getElementById(wattageInputId);
+        const wattageLabel = document.getElementById(wattageLabelId);
+
+        dropdown.addEventListener('change', function() {
+            if (this.value === customValue) {
+                wattageInput.style.display = 'block';
+                wattageLabel.style.display = 'block';
+            } else {
+                wattageInput.style.display = 'none';
+                wattageLabel.style.display = 'none';
+            }
+            localStorage.setItem(`${dropdownId}Selection`, this.value);
+        });
+
+        const savedSelection = localStorage.getItem(`${dropdownId}Selection`) || dropdown.value;
+        if (savedSelection === customValue) {
+            wattageInput.style.display = 'block';
+            wattageLabel.style.display = 'block';
+        } else {
+            wattageInput.style.display = 'none';
+            wattageLabel.style.display = 'none';
+        }
+        dropdown.value = savedSelection;
+
+        wattageInput.addEventListener('input', function() {
+            localStorage.setItem(`${wattageInputId}Value`, this.value);
+        });
+
+        const savedWattage = localStorage.getItem(`${wattageInputId}Value`);
+        if (savedWattage) {
+            wattageInput.value = savedWattage;
+        }
+    }
+
+    // Initialize form fields and selections
+    ['ac', 'hottub', 'infloor_heat'].forEach(feature => {
+        const selection = localStorage.getItem(`${feature}Selection`) || 'no';
+        document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
+            if (input.value === selection) {
+                input.checked = true;
+            }
+        });
+
+        const wattageInputId = `user_provided_${feature}_wattage`;
+        handleFeatureChange(feature, wattageInputId);
     });
 
     handleDropdownChange('heating', 'heating_wattage', 'user_provided_heating_wattage', 'user_provided_heating_wattage_label');
     handleDropdownChange('stove', 'stove_wattage', 'user_provided_stove_wattage', 'user_provided_stove_wattage_label');
     handleDropdownChange('water_heater', 'water_heater_wattage', 'user_provided_water_heater_wattage', 'user_provided_water_heater_wattage_label');
     handleDropdownChange('clothes_dryer', 'clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage_label');
-  }
 
-  initForm();
+    // Check for form submission flag and scroll if set
+    if (sessionStorage.getItem('formSubmitted') === 'true') {
+        var formElement = document.getElementById('calcForm');
+        if(formElement) {
+            formElement.scrollIntoView({ behavior: 'smooth' });
+        }
+        // Optionally clear the flag if you only want to scroll once per submission
+        sessionStorage.removeItem('formSubmitted');
+    }
+
+    // Set the form submission flag when the form is submitted
+    var form = document.getElementById('calcForm');
+    if(form) {
+        form.addEventListener('submit', function() {
+            sessionStorage.setItem('formSubmitted', 'true');
+            // No need to manually scroll here; the page will reload or navigate,
+            // and scrolling will occur based on the flag set above.
+        });
+    }
 });
-
-
-  
-
-
-
 </script>
+
+
+
+
 
 
 
