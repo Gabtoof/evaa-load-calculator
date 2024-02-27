@@ -727,6 +727,23 @@ label[id$="_wattage_label"] {
 
     <script>
 document.addEventListener("DOMContentLoaded", function() {
+    
+    
+    function resetFormAndStorage() {
+        // Clear localStorage and sessionStorage items
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Optionally, reset any specific values or settings if needed
+        // For example, reset form fields to default values if not automatically handled
+
+        // Refresh the page to apply default values
+        window.location.reload();
+    }
+
+    
+    
+    
     function handleFeatureChange(feature, wattageInputId) {
         const featureSelection = document.querySelector(`input[name="${feature}"]:checked`)?.value;
         const wattageField = document.getElementById(wattageInputId);
@@ -739,6 +756,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             wattageField.style.display = 'none';
             wattageLabel.style.display = 'none';
+            // Reset wattageField value to default if needed
         }
 
         document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
@@ -788,6 +806,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (savedWattage) {
             wattageInput.value = savedWattage;
         }
+        
     }
 
     // Initialize form fields and selections
@@ -808,9 +827,19 @@ document.addEventListener("DOMContentLoaded", function() {
     handleDropdownChange('water_heater', 'water_heater_wattage', 'user_provided_water_heater_wattage', 'user_provided_water_heater_wattage_label');
     handleDropdownChange('clothes_dryer', 'clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage_label');
 
-    // Check for form submission flag and scroll if set
+
+
+
+    // Handling Reset Button Click
+    document.querySelector('[name="reset"]').addEventListener('click', resetFormAndStorage);
+
+
+
+
+
+    // Check for form submission flag and SCROLL if set
     if (sessionStorage.getItem('formSubmitted') === 'true') {
-        var formElement = document.getElementById('calcForm');
+        var formElement = document.getElementById('service_delivery'); //scroll to 'service_delivery ID
         if(formElement) {
             formElement.scrollIntoView({ behavior: 'smooth' });
         }
@@ -828,6 +857,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+
 </script>
 
 
