@@ -31,6 +31,11 @@ Author: Andrew Baituk
 [ ] get someone to double check logic
 [ ] add disclaimers/etc
 [ ] make pretty
+[ ] remove 'confusing' result text on first load
+[ ] add above/below ground electrical service
+[ ] explore allowing EV selection and daily commute
+
+// Potential icons
 [ ] fix water heater icons
 [ ] make icons more consistant background or something
 [ ] ensure icons look 'selected'
@@ -46,13 +51,13 @@ function evaa_load_calculator_scripts() {
     // Use the WordPress built-in script versioning for cache-busting
     $version = wp_get_theme()->get('Version');
 
-    wp_enqueue_script(
-        'evaa-calculator',
-        plugin_dir_url(__FILE__) . 'evaa-load-calculator.js',
-        array('jquery'), // Dependencies
-       // $version, // Version number for cache busting
-        true // Load in footer
-    );
+    // wp_enqueue_script(
+    //     'evaa-calculator',
+    //     plugin_dir_url(__FILE__) . 'evaa-load-calculator.js',
+    //     array('jquery'), // Dependencies
+    //    // $version, // Version number for cache busting
+    //     true // Load in footer
+    // );
 }
 add_action('wp_enqueue_scripts', 'evaa_load_calculator_scripts');
 
@@ -140,9 +145,9 @@ $total_load += 5000;
 $total_load += 5000 + (1000 * ceil(($home_size_m2 - 90)/90));
 }
   
-$output .= "Base Living Area Load: 5000W<br>";
-$output .= "Additional Living Area Load: " . ($total_load - 5000) . "W<br>";
-$output .= "Total Living Area Load: " . $total_load . "W<br>";
+$output .= "Base Living Area Load (first 90 m2): 5000 W<br>";
+$output .= "Additional Living Area Load (1000 W each additional 90 m2): " . ($total_load - 5000) . " W<br>";
+$output .= "Total Living Area Load: " . $total_load . " W<br>";
 
 // Heating
 
@@ -169,7 +174,7 @@ switch($heating_type) {
             $heating_load = 26300;
         }
         break;
-    case "heating_watt":
+    case "heating_wattage":
         $heating_load = intval($_POST['user_provided_heating_wattage']);
         break;
 }
@@ -209,7 +214,7 @@ if ($ac_load > $heating_load) {
     $output .= "AC Load: {$ac_load} W | Heating Load: {$heating_load} W<br>Using larger of AC or Heating load: Heating <br>";
 }
 
-$output .= "Running total: " . $total_load . "W<br>";
+$output .= "Running total: " . $total_load . " W<br>";
 
 
 // Stove
@@ -242,12 +247,12 @@ $isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove
 
 // Output the stove type
 $output .= "Stove Type: " . $stove_type . "<br>";
-$output .= "Stove: " . $stove_w . "W<br>";
+$output .= "Stove: " . $stove_w . " W<br>";
 
 // Output whether an electric stove is selected, considering both "electric" and "stove_wattage" as valid conditions
 // $output .= "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
 
-$output .= "Running total: " . $total_load . "W<br>";
+$output .= "Running total: " . $total_load . " W<br>";
 
 
 // Water Heater
@@ -261,7 +266,8 @@ switch($water_heater_type) {
         $total_load += $loadToAdd; 
         $water_heater_w = $loadToAdd;
         $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        $output .= "Load to Add: " . $loadToAdd . "W<br>";
+        $output .= "Water Heater: " . 5760 . " W<br>";
+        $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
         break;
     case "gas":
         
@@ -277,21 +283,22 @@ switch($water_heater_type) {
             $total_load += $loadToAdd;
             $water_heater_w = $loadToAdd;
             $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-            $output .= "Custom Water Heater: " . $user_provided_wattage . "W<br>";
-            $output .= "Load to Add (after auto adjustment if applicable): " . $loadToAdd . "W<br>";
+            $output .= "Custom Water Heater: " . $user_provided_wattage . " W<br>";
+            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
         }
         break;
     default:
         // Optionally handle unexpected cases
         break;
 }
-$output .= "Water Heater: " . $water_heater_w . "W<br>";
-$output .= "Running total: " . $total_load . "W<br>";
+$output .= "Water Heater Type: " . $water_heater_type . "<br>";
+$output .= "Water Heater: " . $water_heater_w . " W<br>";
+$output .= "Running total: " . $total_load . " W<br>";
 
 // Clothes Dryer
 $clothes_dryer_type = $_POST['clothes_dryer'];
 
-switch($clothes_dryer_type) {
+switch($clothes_dryer_type) { 
     case "electric":
         // if electric stove, only use 25%
         // https://products.geappliances.com/appliance/gea-support-search-content?contentId=34592
@@ -300,8 +307,9 @@ switch($clothes_dryer_type) {
         $total_load += $loadToAdd;
         $clothes_dryer_w = $loadToAdd;
         // Debugging Echoes
+        $output .= "Clothes Dryer: 5760 W<br>";
         $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        $output .= "Load to Add: " . $loadToAdd . "W<br>";
+        $output .= "Load to Add (after auto adjustment due to electric stove, if applicable):: " . $loadToAdd . " W<br>";
         break;
     case "gas":
         $total_load += 0; // covered under base load
@@ -315,19 +323,23 @@ switch($clothes_dryer_type) {
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
             $clothes_dryer_w = $loadToAdd;
-            $output .= "Custom Clothes Dryer Wattage: " . $loadToAdd . "W<br>";
+            $output .= "Custom Clothes Dryer Wattage: " . $user_provided_wattage . " W<br>";
+            $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
+            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable):: " . $loadToAdd . " W<br>";
+            
         }
         break;
     // Add cases for other types if necessary
 }
-$output .= "Clothes Dryer: " . $clothes_dryer_w . "W<br>";
-$output .= "Running total: " . $total_load . "W<br>";
+$output .= "Clothes Dryer Type: " . $clothes_dryer_type . "<br>";
+$output .= "Clothes Dryer: " . $clothes_dryer_w . " W<br>";
+$output .= "Running total: " . $total_load . " W<br>";
 
 
 
 // dishwasher commented out, part of base load calc
 // // dishwasher
-// echo "Load before Dishwasher calculation: " . $total_load . "W<br>";
+// echo "Load before Dishwasher calculation: " . $total_load . " W<br>";
 // if(isset($_POST['dishwasher'])) {
 //     if (isset($_POST['user_provided_dishwasher_wattage']) && !empty($_POST['user_provided_dishwasher_wattage'])) {
 //         $dishwasher_wattage = intval($_POST['user_provided_dishwasher_wattage']);
@@ -336,7 +348,7 @@ $output .= "Running total: " . $total_load . "W<br>";
 //     }
 //     $total_load += $dishwasher_wattage;
 // }
-// echo "Load after Dishwasher calculation: " . $total_load . "W<br>";
+// echo "Load after Dishwasher calculation: " . $total_load . " W<br>";
 
 
 
@@ -351,8 +363,8 @@ if(isset($_POST['hottub']) && $_POST['hottub'] === 'yes') {
         $hottub_wattage = 12000; // default value
     }
     $total_load += $hottub_wattage;
-    $output .= " Hot Tub: " . $hottub_wattage . "W<br>";
-    $output .= "Running total: " . $total_load . "W<br>";
+    $output .= "Hot Tub: " . $hottub_wattage . " W<br>";
+    $output .= "Running total: " . $total_load . " W<br>";
 }
 
 
@@ -367,14 +379,24 @@ if(isset($_POST['infloor_heat']) && $_POST['infloor_heat'] === 'yes') {
         $infloor_heat_wattage = 7680; // default value
     }
     $total_load += $infloor_heat_wattage;
-    $output .= "In-Floor Heating: " . $total_load . "W<br>";
-    $output .= "Running total: " . $total_load . "W<br>";
+    $output .= "In-Floor Heating: " . $total_load . " W<br>";
+    $output .= "Running total: " . $total_load . " W<br>";
 }
 
+// service delivery
+$userSelectedOption = $_POST['service_delivery']; // Assuming POST method
 
+// Set $service_delivery based on the user's choice
+if (isset($userSelectedOption)) {
+    // If an option is selected, use its value
+    $service_delivery = $userSelectedOption;
+} else {
+    // Set a default value (e.g., if no option is selected)
+    $service_delivery = 'unknown'; // Adjust as needed
+}
 
-
-
+// Now you can use $service_delivery in your further processing
+$output .= "Electrical service delivered: $service_delivery ground<br>";
 
 
 
@@ -385,9 +407,9 @@ if(isset($_POST['infloor_heat']) && $_POST['infloor_heat'] === 'yes') {
     // Calculate remaining capacity
     $remaining_capacity = $panel_capacity - $total_load;
 $output .= "<br>";
-$output .= "Total Load: " . $total_load . "W<br>";
-$output .= "Panel Capacity: " . $panel_capacity . "W<br>";
-$output .= "Available Capacity: " . $remaining_capacity . "W<br>";
+$output .= "Total Load: " . $total_load . " W<br>";
+$output .= "Panel Capacity: " . $panel_capacity . " W<br>";
+$output .= "Available Capacity: " . $remaining_capacity . " W<br>";
 
 
 
@@ -420,23 +442,35 @@ if (!$best_fit_charger) {
         foreach (array_reverse($ev_chargers) as $charger) {
             if ($temp_capacity >= $charger['wattage']) {
                 $best_fit_charger = $charger;
-                $shared_circuit_message = " This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger";
+                
+                // Check the $service_delivery status to customize the message
+                if ($service_delivery == 'above') {
+                    $shared_circuit_message = "This will require either upgrading your electrical service OR sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger. As costs may be comparable, a service upgrade is recommended as it offers fastest charging and future growth potential";
+                } else {
+                    $shared_circuit_message = "This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger";
+                }
+                
                 break 2; // Found a suitable charger with sharing, exit both loops
             }
         }
     }
 }
 
+
 // Construct the output message
 if ($best_fit_charger) {
     $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg\" alt=\"Green checkmark\" width=\"20\" height=\"20\">
     <strong>The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['kW']}kW), " .
-               "adding rougly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message. </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
+               "adding roughly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message. </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
 } else {
-    $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
-    <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger.</strong>";
+    if ($service_delivery === 'above') {
+        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
+        <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Budget roughly $2000 since your residence is connected to an outdoor power pole.</strong>";
+    } else {
+        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
+        <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Contact an electrician for quotes.</strong>";
+    }
 }
-
 
 
 
@@ -447,12 +481,32 @@ if ($best_fit_charger) {
 // Your HTML form
 ?><?php
 session_start();
+// Reset form data (if submitted)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     $_SESSION = array(); // Clear the session variables
-    header('Location: ' . $_SERVER['PHP_SELF']); // Redirect to the same page to refresh and clear form data
-    exit;
-}
+    header('Location: ' . $_SERVER['PHP_SELF']); // Redirect to the same page
+    exit; // Exit script execution
+  }
+  
+  // Handle clothes dryer selection (if submitted)
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_POST['clothes_dryer'] === 'clothes_dryer_wattage') {
+      $_SESSION['user_specified_wattage'] = 'clothes_dryer_wattage';
+    } else {
+      // Unset session variable if not selected
+      unset($_SESSION['user_specified_wattage']);
+    }
+  }
+
+// below was working. commented out as trying to hide/show fields
+// if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
+//     $_SESSION = array(); // Clear the session variables
+//     header('Location: ' . $_SERVER['PHP_SELF']); // Redirect to the same page to refresh and clear form data
+//     exit;
+// }
 ?>
+
+        
         <style>
         /* General form styling */
         .form-class {
@@ -504,36 +558,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 
         .form-class input[type="submit"].reset-button:hover {
             background-color: #ccac00; /* Darker Yellow */
-        }
-        .image-buttons {
-        width: 150px; /* Adjust as needed */
-        height: 150px; /* Adjust as needed */
-        cursor: pointer;
-        margin-right: 10px; /* Adjust as needed */
-    }
-        /* Style for the image icon containers */
-        .image-buttons-div {
-        display: inline-block;
-        text-align: center;
-        margin-right: 10px; /* Adjust as needed */
-    }
-
-    /* Style for the image icons */
-    .image-buttons {
-        width: 150px; /* Adjust as needed */
-        height: 150px; /* Adjust as needed */
-        cursor: pointer;
-    }
-
-    /* Style for the alt text */
-    .alt-text {
-        margin-top: 5px; /* Adjust as needed */
-    }
 
 
     </style>
 <div class="form-class">
-<form action="" method="post">
+<form action="" method="post" id="calcForm">
    
     <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">Panel Capacity: </label>
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required>Amps<br>
@@ -552,93 +581,54 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
     <option value="gas" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'gas') ? 'selected' : ''; ?>>Gas Furnace</option>
     <option value="electric" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'electric') ? 'selected' : ''; ?>>Electric Furnace</option>
     <option value="air_heat_pump" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'air_heat_pump') ? 'selected' : ''; ?>>Air Source Heat Pump</option>
-    <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>I'll provide nameplate wattage:</option>
+    <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
-<div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/g2.png" alt="Gas Furnace" onclick="selectHeating('gas')">
-        <div class="alt-text">Gas Furnace</div>
-    </div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/g3.png" alt="Electric Furnace" onclick="selectHeating('electric')">
-        <div class="alt-text">Electric Furnace</div>
-    </div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/gemini1.png" alt="Air Source Heat Pump" onclick="selectHeating('air_heat_pump')">
-        <div class="alt-text">Air Source Heat Pump</div>
-    </div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/gcustom2.png" alt="Input Own Wattage" onclick="selectHeating('heating_wattage')">
-        <div class="alt-text">Air Source Heat Pump</div>
-    </div>
-</div>
-<input type="hidden" id="heating" name="heating">
 
 
-        <!-- removing until we can find a good source of data
-        <option value="geo_heat_pump">Geothermal Heat Pump</option> 
-        <option value="boiler">Boiler System</option> -->
-        
-        <!-- Input field for heating wattage -->
-        
+
     </select>
     <label for="user_provided_heating_wattage" id="user_provided_heating_wattage_label" style="display:none;">Watts:</label>
     <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
     <br>
+
     <label for="stove">Stove:</label>
-<select name="stove" id="stove">
-    <option value="gas">Gas</option>
-    <option value="electric">Electric</option>
-    <option value="stove_wattage">I'll provide nameplate wattage:</option>
+<select name="stove" id="stove" onchange="showWattageInput(this.value);">
+    <option value="gas" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
+    <option value="electric" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
+    <option value="stove_wattage" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'stove_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
-<!-- Input field for user-provided stove wattage -->
-<label for="user_provided_stove_wattage" id="user_provided_stove_wattage_label" style="display:none;">Watts:</label>
-<input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="display: none;"><br>
+    <!-- Input field for user-provided stove wattage -->
+    <label for="user_provided_stove_wattage" id="user_provided_stove_wattage_label" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display:none;'; ?>">Watts:</label>
+    <input type="number" name="user_provided_stove_wattage" id="user_provided_stove_wattage" style="<?php echo $selectedStoveValue == 'stove_wattage' ? '' : 'display: none;'; ?>"><br>
+    
+
 
     <label for="water_heater">Water Heater Type:</label>
 <select name="water_heater" id="water_heater">
-    <option value="gas">Gas</option>
-    <option value="electric">Electric</option>
-    <option value="water_heater_wattage">I'll provide nameplate wattage:</option>
+    <option value="gas" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
+    <option value="electric" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
+    <option value="water_heater_wattage" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'stove_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
 <!-- Input field for user-entered wattage -->
 <label for="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage_label" style="display:none;">Watts:</label>
 <input type="number" name="user_provided_water_heater_wattage" id="user_provided_water_heater_wattage" style="display: none;">
 <br>
 
-<input type="hidden" name="water_heater" id="water_heater">
 
-
-
-<!-- Water Heater Type selection using clickable images -->
-<label for="water_heater">Water Heater Type:</label>
-<div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/Gemini_Generated_Image-1.jpg" alt="Gas Water Heater" onclick="selectWaterHeater('gas')">
-        <div class="alt-text">Gas Water Heater</div>
-    </div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/Gemini_Generated_Image-2.jpg" alt="Electric Water Heater" onclick="selectWaterHeater('electric')">
-        <div class="alt-text">Electric Water Heater</div>
-    </div>
-    <div class="image-buttons-div">
-        <img class="image-buttons" src="wp-content/uploads/2024/02/gcustom2.png" alt="Input Own Wattage" onclick="selectWaterHeater('water_heater_wattage')">
-        <div class="alt-text">Input Own Wattage</div>
-    </div>
-</div>
 
 
 
 <label for="clothes_dryer">Clothes Dryer Type:</label>
 <select name="clothes_dryer" id="clothes_dryer">
-    <option value="gas">Gas</option>
-    <option value="electric">Electric</option>
-    <option value="heatpump">Electric Heat Pump</option>
-    <option value="clothes_dryer_wattage">I'll provide nameplate wattage:</option>
+    <option value="gas" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
+    <option value="electric" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
+	<option value="heatpump" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'heatpump') ? 'selected' : ''; ?>>Electric Heat Pump</option>
+    <option value="clothes_dryer_wattage" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'clothes_dryer_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
 <!-- Input field for user-provided clothes dryer wattage -->
-<label for="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage_label" style="display:none;">Watts:</label>
-<input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage" style="display: none;"><br>
+<label for="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage_label" style="display: none;">Watts:</label>
+<input type="number" name="user_provided_clothes_dryer_wattage" id="user_provided_clothes_dryer_wattage"  value="<?php echo isset($_POST['user_provided_clothes_dryer_wattage']) ? $_POST['user_provided_clothes_dryer_wattage'] : ''; ?>" style="display: none;"><br>
+
 
 
 <br>
@@ -683,6 +673,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
 
 
+<label for="service_delivery">Is your electrical service delivered:</label>
+<select name="service_delivery" id="service_delivery">
+    <option disabled selected value> -- select an option -- </option>
+    <option value="above" <?php if ($service_delivery === 'above') echo 'selected'; ?>>Above Ground (visible power lines)</option>
+    <option value="under" <?php if ($service_delivery === 'under') echo 'selected'; ?>>Under Ground</option>
+</select>
+
 
    
     <br>
@@ -693,6 +690,102 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
 
 <input type="submit" name="reset" value="Reset" class="reset-button"  formnovalidate></form>
     </div>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+  function handleFeatureChange(feature, wattageInputId) {
+    const featureSelection = document.querySelector(`input[name="${feature}"]:checked`)?.value;
+    const wattageField = document.getElementById(wattageInputId);
+    const wattageLabel = document.querySelector(`label[for="${wattageInputId}"]`);
+
+    if (featureSelection === 'yes') {
+      wattageField.style.display = 'block';
+      wattageLabel.style.display = 'block';
+      wattageField.value = localStorage.getItem(`${feature}Wattage`) || '';
+    } else {
+      wattageField.style.display = 'none';
+      wattageLabel.style.display = 'none';
+    }
+
+    document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
+      input.addEventListener('change', () => {
+        const selectedValue = document.querySelector(`input[name="${feature}"]:checked`).value;
+        localStorage.setItem(`${feature}Selection`, selectedValue);
+        handleFeatureChange(feature, wattageInputId);
+      });
+    });
+
+    wattageField.addEventListener('input', () => {
+      localStorage.setItem(`${feature}Wattage`, wattageField.value);
+    });
+  }
+
+  function handleDropdownChange(dropdownId, customValue, wattageInputId, wattageLabelId) {
+    const dropdown = document.getElementById(dropdownId);
+    const wattageInput = document.getElementById(wattageInputId);
+    const wattageLabel = document.getElementById(wattageLabelId);
+
+    dropdown.addEventListener('change', function() {
+      if (this.value === customValue) {
+        wattageInput.style.display = 'block';
+        wattageLabel.style.display = 'block';
+      } else {
+        wattageInput.style.display = 'none';
+        wattageLabel.style.display = 'none';
+      }
+      localStorage.setItem(`${dropdownId}Selection`, this.value);
+    });
+
+    const savedSelection = localStorage.getItem(`${dropdownId}Selection`) || dropdown.value;
+    if (savedSelection === customValue) {
+      wattageInput.style.display = 'block';
+      wattageLabel.style.display = 'block';
+    } else {
+      wattageInput.style.display = 'none';
+      wattageLabel.style.display = 'none';
+    }
+    dropdown.value = savedSelection;
+
+    wattageInput.addEventListener('input', function() {
+      localStorage.setItem(`${wattageInputId}Value`, this.value);
+    });
+
+    const savedWattage = localStorage.getItem(`${wattageInputId}Value`);
+    if (savedWattage) {
+      wattageInput.value = savedWattage;
+    }
+  }
+
+  function initForm() {
+    ['ac', 'hottub', 'infloor_heat'].forEach(feature => {
+      const selection = localStorage.getItem(`${feature}Selection`) || 'no';
+      document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
+        if (input.value === selection) {
+          input.checked = true;
+        }
+      });
+
+      const wattageInputId = `user_provided_${feature}_wattage`;
+      handleFeatureChange(feature, wattageInputId);
+    });
+
+    handleDropdownChange('heating', 'heating_wattage', 'user_provided_heating_wattage', 'user_provided_heating_wattage_label');
+    handleDropdownChange('stove', 'stove_wattage', 'user_provided_stove_wattage', 'user_provided_stove_wattage_label');
+    handleDropdownChange('water_heater', 'water_heater_wattage', 'user_provided_water_heater_wattage', 'user_provided_water_heater_wattage_label');
+    handleDropdownChange('clothes_dryer', 'clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage_label');
+  }
+
+  initForm();
+});
+
+
+  
+
+
+
+</script>
+
 
 
 
