@@ -28,7 +28,7 @@ while ($true) {
         $elapsed = New-TimeSpan -Start $lastActionTime -End $now
         $secondsElapsed = [Math]::Floor($elapsed.TotalSeconds)
         if ($secondsElapsed -le 30) {
-            Write-Host "Time since last action: $secondsElapsed seconds"
+            Write-Host "Time since last action: $secondsElapsed seconds" -ForegroundColor Green
         } else {
             Write-Host "Time since last action: >30 seconds" -ForegroundColor Cyan
         }

@@ -84,7 +84,7 @@ $output = ""; // Initialize output buffer
 $clothes_dryer_w = 0;
 $water_heater_w = 0;
 $stove_w = 0;
-
+$formSubmitted = !empty($_POST); // Check if any POST data exists
 
 
 // Check if the keys exist in the $_POST data and assign them
@@ -445,9 +445,9 @@ if (!$best_fit_charger) {
                 
                 // Check the $service_delivery status to customize the message
                 if ($service_delivery == 'above') {
-                    $shared_circuit_message = "This will require either upgrading your electrical service OR sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger. As costs may be comparable, a service upgrade is recommended as it offers fastest charging and future growth potential";
+                    $shared_circuit_message = "This will require either upgrading your electrical service OR sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger. As costs may be comparable, a service upgrade is recommended as it offers fastest charging and future growth potential.";
                 } else {
-                    $shared_circuit_message = "This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger";
+                    $shared_circuit_message = "This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger.";
                 }
                 
                 break 2; // Found a suitable charger with sharing, exit both loops
@@ -458,17 +458,20 @@ if (!$best_fit_charger) {
 
 
 // Construct the output message
-if ($best_fit_charger) {
-    $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg\" alt=\"Green checkmark\" width=\"20\" height=\"20\">
-    <strong>The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['kW']}kW), " .
-               "adding roughly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message. </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
-} else {
-    if ($service_delivery === 'above') {
-        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
-        <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Budget roughly $2000 since your residence is connected to an outdoor power pole.</strong>";
+$message = ''; // Initialize message as empty
+if ($formSubmitted) { // Only construct the message if the form has been submitted
+    if ($best_fit_charger) {
+        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg\" alt=\"Green checkmark\" width=\"20\" height=\"20\">
+        <strong>The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['kW']}kW), " .
+                   "adding roughly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
     } else {
-        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
-        <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Contact an electrician for quotes.</strong>";
+        if ($service_delivery === 'above') {
+            $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
+            <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Budget roughly $2000 since your residence is connected to an outdoor power pole.</strong>";
+        } else {
+            $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
+            <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Contact an electrician for quotes.</strong>";
+        }
     }
 }
 
