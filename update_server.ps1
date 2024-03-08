@@ -1,7 +1,9 @@
 # Specify the source files
 $sourcePaths = @(
     "C:\Users\AndrewBatiuk\OneDrive - Batiuk\git\evaa-load-calculator\evaa-load-calculator.php",
-    "C:\Users\AndrewBatiuk\OneDrive - Batiuk\git\evaa-load-calculator\evaa-load-calculator.js"
+    "C:\Users\AndrewBatiuk\OneDrive - Batiuk\git\evaa-load-calculator\evaa-load-calculator.js",
+	"C:\Users\AndrewBatiuk\OneDrive - Batiuk\git\evaa-load-calculator\ev_db.json",
+	"C:\Users\AndrewBatiuk\OneDrive - Batiuk\git\evaa-load-calculator\ev_charge_time_calc.php"
 )
 
 # Specify the destination network share

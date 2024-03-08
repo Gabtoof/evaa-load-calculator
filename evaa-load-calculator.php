@@ -34,12 +34,15 @@ Author: Andrew Baituk
 [ ] remove 'confusing' result text on first load
 [ ] add above/below ground electrical service
 [ ] explore allowing EV selection and daily commute
+[ ] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
+[*] FIX: in floor heat output not displaying incremental value
 
 // Potential icons
 [ ] fix water heater icons
 [ ] make icons more consistant background or something
 [ ] ensure icons look 'selected'
 [ ] hover over glow on icons
+
 
 */
 
@@ -379,7 +382,7 @@ if(isset($_POST['infloor_heat']) && $_POST['infloor_heat'] === 'yes') {
         $infloor_heat_wattage = 7680; // default value
     }
     $total_load += $infloor_heat_wattage;
-    $output .= "In-Floor Heating: " . $total_load . " W<br>";
+    $output .= "In-Floor Heating: " . $infloor_heat_wattage . " W<br>";
     $output .= "Running total: " . $total_load . " W<br>";
 }
 
@@ -390,13 +393,13 @@ $userSelectedOption = $_POST['service_delivery']; // Assuming POST method
 if (isset($userSelectedOption)) {
     // If an option is selected, use its value
     $service_delivery = $userSelectedOption;
+    $output .= "Electrical service delivered: $service_delivery ground<br>";
 } else {
     // Set a default value (e.g., if no option is selected)
     $service_delivery = 'unknown'; // Adjust as needed
 }
-
 // Now you can use $service_delivery in your further processing
-$output .= "Electrical service delivered: $service_delivery ground<br>";
+
 
 
 
@@ -586,12 +589,54 @@ label[id$="_wattage_label"] {
     margin-right: 8px; /* Adjust the value as needed */
 }
 
+/* Pop up for Panel Capacity*/
+.popup-info {
+  position: absolute;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 5px #ccc;
+  padding: 10px;
+  z-index: 100;
+  width: 300px;
+  border-radius: 5px;
+}
+.info-icon {
+  cursor: pointer;
+  display: inline;
+}
+
 </style>
 
 <div class="form-class">
 <form action="" method="post" id="calcForm">
-   
-    <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">Panel Capacity: </label>
+
+
+
+<label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">
+    Panel Capacity:
+</label>
+<a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
+
+<div id="infoPopup" style="display:none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid #ddd; z-index: 1000;">
+    <p>For more information on determining the size of your home's electrical service, visit:</p>
+    <a href="https://www.thespruce.com/electrical-service-size-of-my-home-1152752" target="_blank">The Spruce: Electrical Service Size of My Home</a>
+    <br><br>
+    <button onclick="closeInfoPopup()">Close</button>
+</div>
+
+<script>
+function showInfoPopup() {
+    document.getElementById("infoPopup").style.display = "block";
+}
+
+function closeInfoPopup() {
+    document.getElementById("infoPopup").style.display = "none";
+}
+</script>
+
+
+
+
+
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required> Amps<br>
 
     <label for="home_size">Size of home:</label>
@@ -704,6 +749,7 @@ label[id$="_wattage_label"] {
     <label for="infloor_heat_no">No</label><br>
     <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
 <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
+
 
 
 <label for="service_delivery">Is your electrical service delivered:</label>
@@ -856,6 +902,8 @@ document.addEventListener("DOMContentLoaded", function() {
             // and scrolling will occur based on the flag set above.
         });
     }
+
+
 });
 
 
