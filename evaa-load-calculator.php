@@ -721,14 +721,14 @@ function closeInfoPopup() {
     <option value="gas" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'gas') ? 'selected' : ''; ?>>Gas Furnace</option>
     <option value="electric" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'electric') ? 'selected' : ''; ?>>Electric Furnace</option>
     <option value="air_heat_pump" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'air_heat_pump') ? 'selected' : ''; ?>>Air Source Heat Pump</option>
-    <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>Custom</option>
+    <option value="heating_wattage" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'heating_wattage') ? 'selected' : ''; ?>>Custom or None</option>
 </select>
 
 
 
     </select>
     <label for="user_provided_heating_wattage" id="user_provided_heating_wattage_label" style="display:none;">Watts:</label>
-    <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;">
+    <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;" placeholder="Input value or 0 if none">
     <br>
 
     <label for="stove">Stove:</label>
@@ -840,7 +840,7 @@ function closeInfoPopup() {
     </div>
 
 
-    <script>
+<script>
 document.addEventListener("DOMContentLoaded", function() {
     
     
@@ -969,6 +969,44 @@ document.addEventListener("DOMContentLoaded", function() {
             sessionStorage.setItem('formSubmitted', 'true');
             // No need to manually scroll here; the page will reload or navigate,
             // and scrolling will occur based on the flag set above.
+        });
+    }
+    // TESTING not allowing submit if field empty when shown
+    // Custom validation function
+    function validateForm() {
+        let isValid = true;
+
+        // Heating wattage validation
+        const heatingWattageInput = document.getElementById('user_provided_heating_wattage');
+        if(heatingWattageInput.style.display !== 'none' && !heatingWattageInput.value) {
+            alert('Please input the Heating custom wattage (input "0" if you do not have one) or select another Heating option.');
+            isValid = false;
+        }
+
+        // Stove wattage validation
+        const stoveWattageInput = document.getElementById('user_provided_stove_wattage');
+        if(stoveWattageInput.style.display !== 'none' && !stoveWattageInput.value) {
+            alert('Please input the Stove custom wattage (input "0" if you do not have one) or select another Stove option.');
+            isValid = false;
+        }
+
+        // Water heater wattage validation
+        const waterHeaterWattageInput = document.getElementById('user_provided_water_heater_wattage');
+        if(waterHeaterWattageInput.style.display !== 'none' && !waterHeaterWattageInput.value) {
+            alert('Please input the Water Heater wattage (input "0" if you do not have one) or select another Water Heater option.');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Modify form submission event listener
+    if(form) {
+        form.addEventListener('submit', function(event) {
+            if(!validateForm()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+            sessionStorage.setItem('formSubmitted', 'true');
         });
     }
 
