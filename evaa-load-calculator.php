@@ -840,45 +840,35 @@ function closeInfoPopup() {
     </div>
 
 
-<script>
+    <script>
 document.addEventListener("DOMContentLoaded", function() {
-    
-    
+    // Reset form and storage
     function resetFormAndStorage() {
-        // Clear localStorage and sessionStorage items
         localStorage.clear();
         sessionStorage.clear();
-        
-        // Optionally, reset any specific values or settings if needed
-        // For example, reset form fields to default values if not automatically handled
-
-        // Refresh the page to apply default values
         window.location.reload();
     }
 
-    
-    
-    
+    // Handle feature change
     function handleFeatureChange(feature, wattageInputId) {
         const featureSelection = document.querySelector(`input[name="${feature}"]:checked`)?.value;
         const wattageField = document.getElementById(wattageInputId);
         const wattageLabel = document.querySelector(`label[for="${wattageInputId}"]`);
 
-        if (featureSelection === 'yes') {
-            wattageField.style.display = 'block';
-            wattageLabel.style.display = 'block';
+        const shouldBeVisible = featureSelection === 'yes';
+        wattageField.style.display = shouldBeVisible ? 'block' : 'none';
+        wattageLabel.style.display = shouldBeVisible ? 'block' : 'none';
+        if (shouldBeVisible) {
             wattageField.value = localStorage.getItem(`${feature}Wattage`) || '';
+            wattageField.setAttribute('required', 'required');
         } else {
-            wattageField.style.display = 'none';
-            wattageLabel.style.display = 'none';
-            // Reset wattageField value to default if needed
+            wattageField.removeAttribute('required');
         }
 
         document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
             input.addEventListener('change', () => {
-                const selectedValue = document.querySelector(`input[name="${feature}"]:checked`).value;
-                localStorage.setItem(`${feature}Selection`, selectedValue);
                 handleFeatureChange(feature, wattageInputId);
+                localStorage.setItem(`${feature}Selection`, input.value);
             });
         });
 
@@ -887,31 +877,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Handle dropdown change
     function handleDropdownChange(dropdownId, customValue, wattageInputId, wattageLabelId) {
         const dropdown = document.getElementById(dropdownId);
         const wattageInput = document.getElementById(wattageInputId);
         const wattageLabel = document.getElementById(wattageLabelId);
 
-        dropdown.addEventListener('change', function() {
-            if (this.value === customValue) {
-                wattageInput.style.display = 'block';
-                wattageLabel.style.display = 'block';
+        function updateVisibility() {
+            const isVisible = dropdown.value === customValue;
+            wattageInput.style.display = isVisible ? 'block' : 'none';
+            wattageLabel.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) {
+                wattageInput.setAttribute('required', 'required');
             } else {
-                wattageInput.style.display = 'none';
-                wattageLabel.style.display = 'none';
+                wattageInput.removeAttribute('required');
             }
-            localStorage.setItem(`${dropdownId}Selection`, this.value);
-        });
-
-        const savedSelection = localStorage.getItem(`${dropdownId}Selection`) || dropdown.value;
-        if (savedSelection === customValue) {
-            wattageInput.style.display = 'block';
-            wattageLabel.style.display = 'block';
-        } else {
-            wattageInput.style.display = 'none';
-            wattageLabel.style.display = 'none';
         }
-        dropdown.value = savedSelection;
+
+        dropdown.addEventListener('change', updateVisibility);
+        updateVisibility(); // Initial update
 
         wattageInput.addEventListener('input', function() {
             localStorage.setItem(`${wattageInputId}Value`, this.value);
@@ -921,20 +905,11 @@ document.addEventListener("DOMContentLoaded", function() {
         if (savedWattage) {
             wattageInput.value = savedWattage;
         }
-        
     }
 
-    // Initialize form fields and selections
+    // Initialize fields and selections
     ['ac', 'hottub', 'infloor_heat'].forEach(feature => {
-        const selection = localStorage.getItem(`${feature}Selection`) || 'no';
-        document.querySelectorAll(`input[name="${feature}"]`).forEach(input => {
-            if (input.value === selection) {
-                input.checked = true;
-            }
-        });
-
-        const wattageInputId = `user_provided_${feature}_wattage`;
-        handleFeatureChange(feature, wattageInputId);
+        handleFeatureChange(feature, `user_provided_${feature}_wattage`);
     });
 
     handleDropdownChange('heating', 'heating_wattage', 'user_provided_heating_wattage', 'user_provided_heating_wattage_label');
@@ -942,79 +917,40 @@ document.addEventListener("DOMContentLoaded", function() {
     handleDropdownChange('water_heater', 'water_heater_wattage', 'user_provided_water_heater_wattage', 'user_provided_water_heater_wattage_label');
     handleDropdownChange('clothes_dryer', 'clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage', 'user_provided_clothes_dryer_wattage_label');
 
-
-
-
     // Handling Reset Button Click
     document.querySelector('[name="reset"]').addEventListener('click', resetFormAndStorage);
 
-
-
-
-
-    // Check for form submission flag and SCROLL if set
+    // Scroll to form element upon submission flag
     if (sessionStorage.getItem('formSubmitted') === 'true') {
-        var formElement = document.getElementById('service_delivery'); //scroll to 'service_delivery ID
-        if(formElement) {
+        var formElement = document.getElementById('service_delivery');
+        if (formElement) {
             formElement.scrollIntoView({ behavior: 'smooth' });
         }
-        // Optionally clear the flag if you only want to scroll once per submission
         sessionStorage.removeItem('formSubmitted');
     }
 
-    // Set the form submission flag when the form is submitted
+    // Set form submission flag
     var form = document.getElementById('calcForm');
-    if(form) {
-        form.addEventListener('submit', function() {
-            sessionStorage.setItem('formSubmitted', 'true');
-            // No need to manually scroll here; the page will reload or navigate,
-            // and scrolling will occur based on the flag set above.
-        });
-    }
-    // TESTING not allowing submit if field empty when shown
-    // Custom validation function
-    function validateForm() {
-        let isValid = true;
-
-        // Heating wattage validation
-        const heatingWattageInput = document.getElementById('user_provided_heating_wattage');
-        if(heatingWattageInput.style.display !== 'none' && !heatingWattageInput.value) {
-            alert('Please input the Heating custom wattage (input "0" if you do not have one) or select another Heating option.');
-            isValid = false;
-        }
-
-        // Stove wattage validation
-        const stoveWattageInput = document.getElementById('user_provided_stove_wattage');
-        if(stoveWattageInput.style.display !== 'none' && !stoveWattageInput.value) {
-            alert('Please input the Stove custom wattage (input "0" if you do not have one) or select another Stove option.');
-            isValid = false;
-        }
-
-        // Water heater wattage validation
-        const waterHeaterWattageInput = document.getElementById('user_provided_water_heater_wattage');
-        if(waterHeaterWattageInput.style.display !== 'none' && !waterHeaterWattageInput.value) {
-            alert('Please input the Water Heater wattage (input "0" if you do not have one) or select another Water Heater option.');
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    // Modify form submission event listener
-    if(form) {
+    if (form) {
         form.addEventListener('submit', function(event) {
-            if(!validateForm()) {
+            if (!validateForm()) {
                 event.preventDefault(); // Prevent form submission if validation fails
+            } else {
+                sessionStorage.setItem('formSubmitted', 'true');
             }
-            sessionStorage.setItem('formSubmitted', 'true');
         });
     }
 
-
+    // Custom form validation
+    function validateForm() {
+        // Perform additional validation if needed
+        // Example: Check if other fields are correctly filled
+        // Return 'true' if all validations pass, 'false' otherwise
+        return true;
+    }
 });
-
-
 </script>
+
 
 
 
