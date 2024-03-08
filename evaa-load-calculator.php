@@ -269,7 +269,7 @@ switch($stove_type) {
 // Flag to indicate if the electric stove is selected
 // Check if the stove type is either "electric" or the user has chosen to provide a custom wattage for an electric stove
 // $isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove_wattage");
-// set $isElectricStoveSelected based on wattage being equal to or greater than 1500W
+// set $isElectricStoveSelected based on wattage being equal to or greater than 1500W. changed to this so if user sets custom but doesn't enter value OR enters small value, we don't reduce other loads
 if(isset($stove_w) && $stove_w >= 1500) {
     $isElectricStoveSelected = true;
 } else {
