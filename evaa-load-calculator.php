@@ -33,7 +33,8 @@ Author: Andrew Baituk
 [*] remove 'confusing' result text on first load
 [*] add above/below ground electrical service
 
-[ ] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
+[ ] FIX: double RT output after stove
+[*] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
 [*] FIX: in floor heat output not displaying incremental value
 [*] expand Hot Tub to include pool/sauna/etc
 [ ] show default values to be user where doable via 'background field text when empty'
@@ -299,6 +300,7 @@ switch ($water_heater_type) {
             $output .= "Water Heater: $electricWaterHeaterWattage W (before adjustment)<br>";
             $output .= "ADD (after auto adjustment due to electric stove): " . ($electricWaterHeaterWattage * 0.25) . " W<br>";
         }
+        $output .= "Running total: " . $total_load . " W<br>";
         break;
     case "tankless_water_heater":
         // Determine the wattage based on home size for a tankless water heater
@@ -318,6 +320,7 @@ switch ($water_heater_type) {
         // Detailed Debugging Echoes for tankless water heater
         $output .= "Water Heater Type: Electric Tankless<br>";
         $output .= "ADD: Electric Tankless Water Heater: " . $loadToAdd . " W<br>";
+        $output .= "Running total: " . $total_load . " W<br>";
     case "gas":
         $total_load += 0; // no appreciable electrical load
         break;
@@ -335,6 +338,7 @@ switch ($water_heater_type) {
                 $output .= "Water Heater: " . $user_provided_wattage . " W (before adjustment)<br>";
                 $output .= "ADD (after auto adjustment due to electric stove): " . ($user_provided_wattage * 0.25) . " W<br>";
             }
+            $output .= "Running total: " . $total_load . " W<br>";
         }
         break;
 
@@ -343,7 +347,7 @@ switch ($water_heater_type) {
         break;
 }
 
-$output .= "Running total: " . $total_load . " W<br>";
+//
 
 
 // Clothes Dryer
