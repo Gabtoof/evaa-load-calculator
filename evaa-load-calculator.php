@@ -36,6 +36,11 @@ Author: Andrew Baituk
 [ ] explore allowing EV selection and daily commute
 [ ] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
 [*] FIX: in floor heat output not displaying incremental value
+[ ] expand Hot Tub to include pool/sauna/etc
+[ ] Clarify output: w/ prefix "ADD: " for each item
+[ ] FIX: auto adjustments should ensure stove is > some value (1 for now)
+[ ] ADD: Total additional loads over 1500W (apply 25% calc)
+[ ] Address Tankless Water Heaters
 
 // Potential icons
 [ ] fix water heater icons
@@ -45,7 +50,7 @@ Author: Andrew Baituk
 
 
 */
-
+ 
 
 
 
@@ -88,6 +93,10 @@ $clothes_dryer_w = 0;
 $water_heater_w = 0;
 $stove_w = 0;
 $formSubmitted = !empty($_POST); // Check if any POST data exists
+// Example of default value: $hottub_default_wattage: 12000
+// if used, link it to value used in calcs later with: $hottub_wattage = $hottub_default_wattage;
+// Use <?php echo $hottub_default_wattage; ? > (no space between ? and > ) to use the default value
+
 
 
 // Check if the keys exist in the $_POST data and assign them
@@ -153,10 +162,11 @@ $output .= "Additional Living Area Load (1000 W each additional 90 m2): " . ($to
 $output .= "Total Living Area Load: " . $total_load . " W<br>";
 
 // Heating
-
+// https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+// Note: for simplicity (and because it means we are more likely to suggest NOT ENOUGH capcaity for charger) we are ignoreing the 75% aspect of: For electric space-heating systems consisting of electric thermal storage heating, duct heater, or an electric furnace, the connected heating load is calculated at 100% of the equipment ratings. Where the electric heating installation is provided with automatic thermostatic control devices in each room or heated area, the electric space-heating load is 100% of the first 10 kW of connected heating load plus the balance of the connected heating load at a demand factor of 75%.
 $heating_type = $_POST['heating'];
 switch($heating_type) {
-    case "gas":  //https://iaeimagazine.org/2013/mayjune-2013/residential-load-calculations/
+    case "gas":  
         $heating_load = 0; // No additional load for gas heating
         break;
     case "electric":
@@ -250,7 +260,7 @@ $isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove
 
 // Output the stove type
 $output .= "Stove Type: " . $stove_type . "<br>";
-$output .= "Stove: " . $stove_w . " W<br>";
+$output .= "ADD: Stove: " . $stove_w . " W<br>";
 
 // Output whether an electric stove is selected, considering both "electric" and "stove_wattage" as valid conditions
 // $output .= "Is Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
@@ -261,62 +271,91 @@ $output .= "Running total: " . $total_load . " W<br>";
 // Water Heater
 $water_heater_type = $_POST['water_heater'];
 
-switch($water_heater_type) {
+switch ($water_heater_type) {
     case "electric":
-        // https://solvitnow.com/blog/what-size-breaker-do-i-need-for-my-water-heater/
         // if electric stove, only use 25%
-        $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; // Default wattage for electric water heater
+        // https://solvitnow.com/blog/what-size-breaker-do-i-need-for-my-water-heater/ - depreciated
+        // https://www.archute.com/electricity-water-heater-use/ - using this now
+        $electricWaterHeaterWattage = 4500;
+        $loadToAdd = $isElectricStoveSelected ? ($electricWaterHeaterWattage * 0.25) : $electricWaterHeaterWattage; // Default wattage for electric water heater
         $total_load += $loadToAdd; 
         $water_heater_w = $loadToAdd;
-        $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        $output .= "Water Heater: " . 5760 . " W<br>";
-        $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
+        // Debugging Echoes
+        $output .= "Water Heater Type: Electric Tank<br>";
+        if (!$isElectricStoveSelected) {
+            $output .= "ADD: Water Heater: $electricWaterHeaterWattage W<br>";
+        } else {
+            $output .= "Water Heater: $electricWaterHeaterWattage W (before adjustment)<br>";
+            $output .= "ADD (after auto adjustment due to electric stove): " . ($electricWaterHeaterWattage * 0.25) . " W<br>";
+        }
         break;
+    case "tankless_water_heater":
+        // Determine the wattage based on home size for a tankless water heater
+        // https://learnmetrics.com/how-much-electricity-does-a-tankless-water-heater-use/
+        // https://cleancoolwater.com/how-much-electricity-does-a-tankless-water-heater-use/ (manual estimated combination of both)
+        if ($home_size_sqft <= 1500) {
+            $loadToAdd = 12000; // Default wattage for smaller homes
+        } elseif ($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
+            $loadToAdd = 18000; // Increased wattage for medium-sized homes
+        } else {
+            $loadToAdd = 23000; // Maximum wattage for larger homes
+        }
+        // Since the tankless water heater operates at a 100% load factor,
+        // there is no adjustment based on the electric stove.
+        $total_load += $loadToAdd;
+        $water_heater_w = $loadToAdd;
+        // Detailed Debugging Echoes for tankless water heater
+        $output .= "Water Heater Type: Electric Tankless<br>";
+        $output .= "ADD: Electric Tankless Water Heater: " . $loadToAdd . " W<br>";
     case "gas":
-        
-        $total_load += 0; // no appreciable electricl load
+        $total_load += 0; // no appreciable electrical load
         break;
-
-    case "water_heater_wattage": // This case should match the value attribute from the HTML select option
-        // Check if the user provided a custom wattage
+    case "water_heater_wattage":
         if (isset($_POST['user_provided_water_heater_wattage']) && !empty($_POST['user_provided_water_heater_wattage'])) {
             $user_provided_wattage = intval($_POST['user_provided_water_heater_wattage']);
-            // Apply the 25% rule if electric stove is selected
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
             $water_heater_w = $loadToAdd;
-            $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-            $output .= "Custom Water Heater: " . $user_provided_wattage . " W<br>";
-            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
+            // Debugging Echoes
+            $output .= "Water Heater Type: Electric (Custom)<br>";
+            if (!$isElectricStoveSelected) {
+                $output .= "ADD: Water Heater: " . $user_provided_wattage . " W<br>";
+            } else {
+                $output .= "Water Heater: " . $user_provided_wattage . " W (before adjustment)<br>";
+                $output .= "ADD (after auto adjustment due to electric stove): " . ($user_provided_wattage * 0.25) . " W<br>";
+            }
         }
         break;
+
     default:
         // Optionally handle unexpected cases
         break;
 }
-$output .= "Water Heater Type: " . $water_heater_type . "<br>";
-$output .= "Water Heater: " . $water_heater_w . " W<br>";
+
 $output .= "Running total: " . $total_load . " W<br>";
+
 
 // Clothes Dryer
 $clothes_dryer_type = $_POST['clothes_dryer'];
 
-switch($clothes_dryer_type) { 
+switch ($clothes_dryer_type) {
     case "electric":
         // if electric stove, only use 25%
         // https://products.geappliances.com/appliance/gea-support-search-content?contentId=34592
         //$loadToAdd = $isElectricStoveSelected ? (5600 * 0.25) : 5600; 
-        $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; //80% of 30A circuit
+        $loadToAdd = $isElectricStoveSelected ? (5760 * 0.25) : 5760; // 80% of 30A circuit
         $total_load += $loadToAdd;
         $clothes_dryer_w = $loadToAdd;
         // Debugging Echoes
-        $output .= "Clothes Dryer: 5760 W<br>";
-        $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-        $output .= "Load to Add (after auto adjustment due to electric stove, if applicable):: " . $loadToAdd . " W<br>";
+        $output .= "Clothes Dryer Type: electric<br>";
+        if (!$isElectricStoveSelected) {
+            $output .= "ADD: Clothes Dryer: 5760 W<br>";
+        } else {
+            $output .= "Clothes Dryer: 5760 W (before adjustment)<br>";
+            $output .= "ADD (after auto adjustment due to electric stove): " . (5760 * 0.25) . " W<br>";
+        }
         break;
     case "gas":
-        $total_load += 0; // covered under base load
-        break;
     case "heatpump":
         $total_load += 0; // covered under base load
         break;
@@ -326,17 +365,21 @@ switch($clothes_dryer_type) {
             $loadToAdd = $isElectricStoveSelected ? ($user_provided_wattage * 0.25) : $user_provided_wattage;
             $total_load += $loadToAdd;
             $clothes_dryer_w = $loadToAdd;
-            $output .= "Custom Clothes Dryer Wattage: " . $user_provided_wattage . " W<br>";
-            $output .= "Electric Stove Selected: " . ($isElectricStoveSelected ? "Yes" : "No") . "<br>";
-            $output .= "Load to Add (after auto adjustment due to electric stove, if applicable): " . $loadToAdd . " W<br>";
-            
+            // Debugging Echoes
+            $output .= "Clothes Dryer Type: electric (Custom)<br>";
+            if (!$isElectricStoveSelected) {
+                $output .= "ADD: Clothes Dryer: " . $user_provided_wattage . " W<br>";
+            } else {
+                $output .= "Clothes Dryer: " . $user_provided_wattage . " W (before adjustment)<br>";
+                $output .= "ADD (after auto adjustment due to electric stove): " . ($user_provided_wattage * 0.25) . " W<br>";
+            }
         }
         break;
-    // Add cases for other types if necessary
 }
-$output .= "Clothes Dryer Type: " . $clothes_dryer_type . "<br>";
-$output .= "Clothes Dryer: " . $clothes_dryer_w . " W<br>";
-$output .= "Running total: " . $total_load . " W<br>";
+
+//$output .= "Running total: " . $total_load . " W<br>";
+
+
 
 
 
@@ -357,16 +400,16 @@ $output .= "Running total: " . $total_load . " W<br>";
 
 
 
-// hottub
+// hottub / other
 // https://homeinspectioninsider.com/how-many-amps-does-a-hot-tub-use/
 if(isset($_POST['hottub']) && $_POST['hottub'] === 'yes') {
     if (isset($_POST['user_provided_hottub_wattage']) && !empty($_POST['user_provided_hottub_wattage'])) {
         $hottub_wattage = intval($_POST['user_provided_hottub_wattage']);
     } else {
-        $hottub_wattage = 12000; // default value
+        $hottub_wattage = 12000; // default value, update HTML form if altered
     }
     $total_load += $hottub_wattage;
-    $output .= "Hot Tub: " . $hottub_wattage . " W<br>";
+    $output .= "ADD: Hot Tub: " . $hottub_wattage . " W<br>";
     $output .= "Running total: " . $total_load . " W<br>";
 }
 
@@ -382,7 +425,7 @@ if(isset($_POST['infloor_heat']) && $_POST['infloor_heat'] === 'yes') {
         $infloor_heat_wattage = 7680; // default value
     }
     $total_load += $infloor_heat_wattage;
-    $output .= "In-Floor Heating: " . $infloor_heat_wattage . " W<br>";
+    $output .= "ADD: In-Floor Heating: " . $infloor_heat_wattage . " W<br>";
     $output .= "Running total: " . $total_load . " W<br>";
 }
 
@@ -681,8 +724,9 @@ function closeInfoPopup() {
     <label for="water_heater">Water Heater:</label>
 <select name="water_heater" id="water_heater">
     <option value="gas" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
-    <option value="electric" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
-    <option value="water_heater_wattage" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'stove_wattage') ? 'selected' : ''; ?>>Custom</option>
+    <option value="electric" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'electric') ? 'selected' : ''; ?>>Electric Tank</option>
+    <option value="tankless_water_heater" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'tankless_water_heater') ? 'selected' : ''; ?>>Electric Tankless</option>
+    <option value="water_heater_wattage" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'water_heater_wattage') ? 'selected' : ''; ?>>Custom</option>
 </select>
 <!-- Input field for user-entered wattage -->
 <div class="input-container" id="water_heater_wattage_container">
@@ -717,7 +761,7 @@ function closeInfoPopup() {
 <input type="radio" id="ac_no" name="ac" value="no"  checked>
 <label for="ac_no">No</label><br>
 
-<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
+<label for="user_provided_ac_wattage" id="user_provided_ac_wattage_label" style="display:none;">Leave blank to use estimated value or provide equipment's wattage:</label>
 <input type="number" id="user_provided_ac_wattage" name="user_provided_ac_wattage" style="display:none;">
 
 
@@ -732,12 +776,12 @@ function closeInfoPopup() {
 <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;">
 -->
 
-    <label for="hottub_yes">Do you have a hot tub?</label>
+    <label for="hottub_yes">Do you have electric hot tub/pool/spa?</label>
     <input type="radio" id="hottub_yes" name="hottub" value="yes">
     <label for="hottub_yes">Yes</label>
     <input type="radio" id="hottub_no" name="hottub" value="no" checked>
     <label for="hottub_no">No</label><br>
-    <label for="user_provided_hottub_wattage" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
+    <label for="user_provided_hottub_wattage" style="display:none;">Leave blank to use Hot Tub estimated value or provide total wattage of all such equipment:</label>
 <input type="number" id="user_provided_hottub_wattage" name="user_provided_hottub_wattage" style="display:none;">
 
 
@@ -747,7 +791,7 @@ function closeInfoPopup() {
     <label for="infloor_heat_yes">Yes</label>
     <input type="radio" id="infloor_heat_no" name="infloor_heat" value="no" checked>
     <label for="infloor_heat_no">No</label><br>
-    <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use defaults or provide equipment's wattage:</label>
+    <label for="user_provided_infloor_heat_wattage" style="display:none;">Leave blank to use estimated value or provide equipment's wattage:</label>
 <input type="number" id="user_provided_infloor_heat_wattage" name="user_provided_infloor_heat_wattage" style="display:none;">
 
 
