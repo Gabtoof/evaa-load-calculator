@@ -213,19 +213,18 @@ if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
     if (isset($_POST['user_provided_ac_wattage']) && !empty($_POST['user_provided_ac_wattage'])) {
         $ac_load = intval($_POST['user_provided_ac_wattage']);
     } else {
-        // Assuming $heating_type is determined before this code snippet
-        if ($heating_type == "gas") {
-            if ($home_size_sqft <= 1500) {
-                $ac_load = 2400;
-            } elseif ($home_size_sqft > 1500 && $home_size_sqft <= 3000) {
-                $ac_load = 3300;
-            } else {
-                $ac_load = 4200;
-            }
+        // Determine AC load based solely on home size sqft
+        if ($home_size_sqft <= 1500) {
+            $ac_load = 2400; // for homes up to 1500 sqft
+        } elseif ($home_size_sqft > 1500 && $home_size_sqft <= 2200) {
+            $ac_load = 3300; // for homes between 1501 and 2200 sqft
+        } elseif ($home_size_sqft > 2200 && $home_size_sqft <= 3000) {
+            $ac_load = 3300; // Adjusted to match the provided scales
+        } else {
+            $ac_load = 4200; // for homes larger than 3000 sqft
         }
     }
 }
-
 
 // Decide which load to add based on which is larger
 if ($ac_load > $heating_load) {
