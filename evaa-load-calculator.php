@@ -776,7 +776,7 @@ function closeInfoPopup() {
 <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;">
 -->
 
-    <label for="hottub_yes">Do you have electric hot tub/pool/spa?</label>
+    <label for="hottub_yes">Do you have a hot tub/pool/spa?</label>
     <input type="radio" id="hottub_yes" name="hottub" value="yes">
     <label for="hottub_yes">Yes</label>
     <input type="radio" id="hottub_no" name="hottub" value="no" checked>
