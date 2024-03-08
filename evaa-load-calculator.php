@@ -39,7 +39,7 @@ Author: Andrew Baituk
 [*] expand Hot Tub to include pool/sauna/etc
 [ ] show default values to be user where doable via 'background field text when empty'
 [*] Clarify output: w/ prefix "ADD: " for each item
-[ ] FIX: auto adjustments should ensure stove is > some value (1 for now)
+[*] FIX: auto adjustments should ensure stove is > some value (1 for now)
 [ ] ADD: Total additional loads over 1500W (apply 25% calc)
 [*] Address Tankless Water Heaters
 [ ] compare with https://www.blackboxelectrical.com/pages/electrical-service-load-calculator-for-single-residences-canada
@@ -371,9 +371,11 @@ switch ($clothes_dryer_type) {
         $output .= "Clothes Dryer Type: electric<br>";
         if (!$isElectricStoveSelected) {
             $output .= "ADD: Clothes Dryer: 5760 W<br>";
+            $output .= "Running total: " . $total_load . " W<br>";
         } else {
             $output .= "Clothes Dryer: 5760 W (before adjustment)<br>";
             $output .= "ADD (after auto adjustment due to electric stove): " . (5760 * 0.25) . " W<br>";
+            $output .= "Running total: " . $total_load . " W<br>";
         }
         break;
     case "gas":
@@ -390,9 +392,11 @@ switch ($clothes_dryer_type) {
             $output .= "Clothes Dryer Type: electric (Custom)<br>";
             if (!$isElectricStoveSelected) {
                 $output .= "ADD: Clothes Dryer: " . $user_provided_wattage . " W<br>";
+                $output .= "Running total: " . $total_load . " W<br>";
             } else {
                 $output .= "Clothes Dryer: " . $user_provided_wattage . " W (before adjustment)<br>";
                 $output .= "ADD (after auto adjustment due to electric stove): " . ($user_provided_wattage * 0.25) . " W<br>";
+                $output .= "Running total: " . $total_load . " W<br>";
             }
         }
         break;
