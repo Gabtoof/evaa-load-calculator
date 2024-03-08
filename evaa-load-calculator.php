@@ -44,7 +44,8 @@ Author: Andrew Baituk
 [ ] compare with https://www.blackboxelectrical.com/pages/electrical-service-load-calculator-for-single-residences-canada
 
 // Final website items
-[ ] mention for convience we are using various estimates. best data by entering own values
+[ ] mention for convience we are using various estimates AND simplifying things slightly (ie ignoring basements) - best data by entering own values
+        * assuming AC and electric Heat set to not run same time
 [ ] add disclaimers/etc
 
 // Maybe
