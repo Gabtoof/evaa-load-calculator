@@ -24,23 +24,33 @@ Author: Andrew Baituk
 [*] remove dishwasher
 [*] test if m2 used, conversion (seems ok if sq ft used)
 [*] fix hot tub/in floor heat being added even if no
-[ ] show default values to be user
+
 [*] expand info on EV charger - suggest lower charging when needed
 [*] suggest load balancer/loadmiser when applicable
 [ ] clean up wording around EV charger
 [ ] get someone to double check logic
-[ ] add disclaimers/etc
 [ ] make pretty
-[ ] remove 'confusing' result text on first load
-[ ] add above/below ground electrical service
-[ ] explore allowing EV selection and daily commute
+[*] remove 'confusing' result text on first load
+[*] add above/below ground electrical service
+
 [ ] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
 [*] FIX: in floor heat output not displaying incremental value
 [ ] expand Hot Tub to include pool/sauna/etc
 [ ] Clarify output: w/ prefix "ADD: " for each item
 [ ] FIX: auto adjustments should ensure stove is > some value (1 for now)
 [ ] ADD: Total additional loads over 1500W (apply 25% calc)
-[ ] Address Tankless Water Heaters
+[*] Address Tankless Water Heaters
+[ ] compare with https://www.blackboxelectrical.com/pages/electrical-service-load-calculator-for-single-residences-canada
+
+// Final website items
+[ ] mention for convience we are using various estimates. best data by entering own values
+[ ] add disclaimers/etc
+
+// Maybe
+[ ] show default values to be user
+
+// Version 2
+[ ] explore allowing EV selection and daily commute
 
 // Potential icons
 [ ] fix water heater icons
