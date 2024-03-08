@@ -33,12 +33,12 @@ Author: Andrew Baituk
 [*] remove 'confusing' result text on first load
 [*] add above/below ground electrical service
 
-[ ] FIX: double RT output after stove
+[*] FIX: double RT output after stove
 [*] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
 [*] FIX: in floor heat output not displaying incremental value
 [*] expand Hot Tub to include pool/sauna/etc
 [ ] show default values to be user where doable via 'background field text when empty'
-[ ] Clarify output: w/ prefix "ADD: " for each item
+[*] Clarify output: w/ prefix "ADD: " for each item
 [ ] FIX: auto adjustments should ensure stove is > some value (1 for now)
 [ ] ADD: Total additional loads over 1500W (apply 25% calc)
 [*] Address Tankless Water Heaters
@@ -268,7 +268,13 @@ switch($stove_type) {
 }
 // Flag to indicate if the electric stove is selected
 // Check if the stove type is either "electric" or the user has chosen to provide a custom wattage for an electric stove
-$isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove_wattage");
+// $isElectricStoveSelected = ($stove_type === "electric" || $stove_type === "stove_wattage");
+// set $isElectricStoveSelected based on wattage being equal to or greater than 1500W
+if(isset($stove_w) && $stove_w >= 1500) {
+    $isElectricStoveSelected = true;
+} else {
+    $isElectricStoveSelected = false;
+}
 
 // Output the stove type
 $output .= "Stove Type: " . $stove_type . "<br>";
