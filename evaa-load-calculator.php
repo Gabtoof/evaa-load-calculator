@@ -35,7 +35,8 @@ Author: Andrew Baituk
 
 [ ] FIX: if AC defaults to 3300 for 181 size house, and manual heat is 3000 it SHOULD take AC but its taking HEAT
 [*] FIX: in floor heat output not displaying incremental value
-[ ] expand Hot Tub to include pool/sauna/etc
+[*] expand Hot Tub to include pool/sauna/etc
+[ ] show default values to be user where doable via 'background field text when empty'
 [ ] Clarify output: w/ prefix "ADD: " for each item
 [ ] FIX: auto adjustments should ensure stove is > some value (1 for now)
 [ ] ADD: Total additional loads over 1500W (apply 25% calc)
@@ -205,7 +206,7 @@ switch($heating_type) {
 
 // AC calculation
 // https://www.thisoldhouse.com/heating-cooling/reviews/what-size-air-conditioner-do-i-need
-//https://www.electricalcalculators.org/air-conditioner-power-consumption-calculator/#:~:text=Answer%3A%202%20Ton%20ac%20%3D%202400%20watt%20%3D,of%20%240.2%2FkWh%20%3D%207.2%20kWh%20%2A%240.2%2FkWh%20%3D%20%241.44
+// https://www.electricalcalculators.org/air-conditioner-power-consumption-calculator/#:~:text=Answer%3A%202%20Ton%20ac%20%3D%202400%20watt%20%3D,of%20%240.2%2FkWh%20%3D%207.2%20kWh%20%2A%240.2%2FkWh%20%3D%20%241.44
 // 1500sqft 2ton 2400w, 2200 2.75t 3300w, 3000 3.5t 4200w
 if(isset($_POST['ac']) && $_POST['ac'] === 'yes') {
     // If AC wattage is provided by user, use that; otherwise, use default
