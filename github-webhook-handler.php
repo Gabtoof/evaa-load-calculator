@@ -49,6 +49,7 @@ $result = file_put_contents($localFilePath, $fileContents);
 if ($result === false) {
     die('Failed to update the plugin file.');
 }
+file_put_contents('webhook_payload.log', $payload, FILE_APPEND);
 
 http_response_code(200); // Respond to GitHub that the webhook was received successfully
 ?>
