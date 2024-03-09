@@ -9,6 +9,12 @@ $logFilePath = dirname(__FILE__) . '/github_webhook_handler.log';
 $selfFilename = basename(__FILE__);
 $logFilename = basename($logFilePath);
 
+// For getting version # later
+// Plugin's main PHP file that contains the version number
+$pluginMainFile = $pluginDir . '/evaa-load-calculator.php';
+// Read the content of the main plugin file
+$pluginMainFileContent = file_get_contents($pluginMainFile);
+
 // Function to append log messages to a log file
 function logMessage($message) {
     global $logFilePath;
@@ -17,6 +23,21 @@ function logMessage($message) {
 }
 
 logMessage("Webhook handler started.");
+
+// Use a regular expression to match the version line and extract the version number
+if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
+    $versionNumberBefore = $matches[1];
+    logMessage("Plugin version before update: $versionNumberBefore");
+} else {
+    logMessage("Failed to extract plugin version.");
+}
+
+
+    logMessage("Plugin updated successfully.");
+} else {
+    logMessage("Failed to open ZIP file: " . $tempZip);
+    die("Failed to open ZIP file.");
+}
 
 // Validate the GitHub signature
 $headers = getallheaders();
@@ -189,17 +210,10 @@ if ($res === TRUE) {
     array_map('unlink', glob("$tempExtractDir/*.*"));
     rmdir($tempExtractDir);
 
-
-// Plugin's main PHP file that contains the version number
-$pluginMainFile = $pluginDir . '/evaa-load-calculator.php';
-
-// Read the content of the main plugin file
-$pluginMainFileContent = file_get_contents($pluginMainFile);
-
 // Use a regular expression to match the version line and extract the version number
 if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
-    $versionNumber = $matches[1];
-    logMessage("Plugin version after update: $versionNumber");
+    $versionNumberAfter = $matches[1];
+    logMessage("Plugin version after update: $versionNumberAfter");
 } else {
     logMessage("Failed to extract plugin version.");
 }
@@ -209,6 +223,13 @@ if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matc
 } else {
     logMessage("Failed to open ZIP file: " . $tempZip);
     die("Failed to open ZIP file.");
+}
+
+// Now compare the versions and log whether an update occurred
+if ($versionNumberBefore !== $versionNumberAfter) {
+    logMessage("Update successful: Version changed from $versionNumberBefore to $versionNumberAfter");
+} else {
+    logMessage("Update failed or unnecessary: Version remains at $versionNumberBefore");
 }
 
 unlink($tempZip); // Remove the temporary zip file
