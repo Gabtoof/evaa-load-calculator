@@ -35,19 +35,31 @@ if (!hash_equals($hash, $payloadHash)) {
 
 logMessage("GitHub signature verified.");
 
-// Plugin directory and backup file path
+// Plugin directory
 $pluginDir = dirname(__FILE__);
-$backupFile = $pluginDir . '/../evaa-load-calculator-backup-' . date('Y-m-d-H-i-s') . '.zip';
 
-// Create a zip archive of the current plugin directory
+// Backup directory within the plugin directory
+$backupDir = $pluginDir . '/backups';
+if (!is_dir($backupDir)) {
+    mkdir($backupDir, 0755, true); // Ensure the backup directory exists
+}
+
+// Adjusted backup file path to save within the new backups directory
+$backupFile = $backupDir . '/evaa-load-calculator-backup-' . date('Y-m-d-H-i-s') . '.zip';
+
+// Create a zip archive of the current plugin directory, excluding zip files
 $zip = new ZipArchive();
 if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
     foreach ($files as $name => $file) {
-        if (!$file->isDir()) {
+        // Skip directories and zip files
+        if (!$file->isDir() && $file->getExtension() !== 'zip') {
             $filePath = $file->getRealPath();
-            $relativePath = substr($filePath, strlen($pluginDir) + 1);
-            $zip->addFile($filePath, $relativePath);
+            // Ensure the backup zip file itself is not included
+            if ($filePath !== $backupFile) {
+                $relativePath = substr($filePath, strlen($pluginDir) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
         }
     }
     $zip->close();
