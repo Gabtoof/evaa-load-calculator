@@ -25,6 +25,7 @@ Author: Andrew Baituk
 [*] remove dishwasher
 [*] test if m2 used, conversion (seems ok if sq ft used)
 [*] fix hot tub/in floor heat being added even if no
+[ ] handle plugin updates
 
 [*] expand info on EV charger - suggest lower charging when needed
 [*] suggest load balancer/loadmiser when applicable
@@ -681,7 +682,7 @@ label[id$="_wattage_label"] {
 
 
 <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">
-    Panel Capacity:
+    TESTPanel Capacity:
 </label>
 <a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
 
