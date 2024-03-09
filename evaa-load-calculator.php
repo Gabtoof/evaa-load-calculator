@@ -3,7 +3,7 @@
 Plugin Name: EVAA Load Calculator
 Plugin URI: https://github.com/Gabtoof/evaa-load-calculator
 Description: A plugin to calculate the electrical load for adding an EV charger.
-Version: 1.0.20
+Version: 1.0.21
 Author: Andrew Baituk
 */
 

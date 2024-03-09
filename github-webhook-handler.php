@@ -154,4 +154,4 @@ if ($res === TRUE) {
 // Cleanup and final steps
 logMessage("Webhook handler completed successfully.");
 http_response_code(200);
-?>
+?> 
