@@ -3,7 +3,11 @@
 include_once 'config.php';
 
 // Log file path
-$logFilePath = 'github_webhook_handler.log';
+$logFilePath = dirname(__FILE__) . '/github_webhook_handler.log';
+
+// Automatically determine the script's own filename and log file to exclude them from cleanup
+$selfFilename = basename(__FILE__);
+$logFilename = basename($logFilePath);
 
 // Function to append log messages to a log file
 function logMessage($message) {
@@ -50,9 +54,9 @@ $zip = new ZipArchive();
 if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
     foreach ($files as $name => $file) {
-        if (!$file->isDir() && $file->getExtension() !== 'zip') {
+        if (!$file->isDir()) {
             $filePath = $file->getRealPath();
-            if ($filePath !== $backupFile) {
+            if ($filePath !== $backupFile && !in_array(basename($filePath), [$selfFilename, $logFilename])) {
                 $relativePath = substr($filePath, strlen($pluginDir) + 1);
                 $zip->addFile($filePath, $relativePath);
             }
@@ -76,7 +80,7 @@ usort($backupFiles, function($a, $b) {
     return filemtime($b) - filemtime($a);
 });
 
-// Remove older backups, keep only the most recent $numBackupsToKeep
+// Remove older backups, keeping only the most recent $numBackupsToKeep
 if (count($backupFiles) > $numBackupsToKeep) {
     $filesToDelete = array_slice($backupFiles, $numBackupsToKeep);
     foreach ($filesToDelete as $file) {
@@ -85,11 +89,8 @@ if (count($backupFiles) > $numBackupsToKeep) {
     }
 }
 
-// Automatically determine the script's own filename to exclude it from cleanup
-$selfFilename = basename(__FILE__);
-
-// Define directories and files to preserve
-$preserveItems = ['backups', '.htaccess', $selfFilename]; // Adjust as needed
+// Define directories and files to preserve in the cleanup process
+$preserveItems = ['backups', $selfFilename, $logFilename]; // Dynamically include this script and the log file
 
 // Cleanup existing files/directories in the plugin directory
 $pluginItems = array_diff(scandir($pluginDir), ['..', '.', ...$preserveItems]);
@@ -115,6 +116,7 @@ foreach ($pluginItems as $item) {
         unlink($itemPath);
     }
 }
+
 
 // GitHub API URL to download the repository zip
 $repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
