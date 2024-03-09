@@ -119,7 +119,7 @@ fclose($output);
 curl_close($ch);
 
 // Define directories and files to preserve
-$preserveItems = ['backups', '.htaccess', 'config.php'];
+$preserveItems = ['backups', '.htaccess', 'config.php', 'temp_plugin.zip'];
 
 // Cleanup existing files/directories in the plugin directory
 $pluginItems = array_diff(scandir($pluginDir), array('..', '.', ...$preserveItems));
