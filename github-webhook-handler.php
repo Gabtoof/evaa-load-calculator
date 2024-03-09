@@ -1,7 +1,7 @@
 <?php
 // github-webhook-handler.php
-//include_once 'config.php';
-$SECRET_KEY = 'test';
+include_once 'config.php';
+//$SECRET_KEY = 'test';
 
 // Validate the GitHub signature
 $headers = getallheaders();
