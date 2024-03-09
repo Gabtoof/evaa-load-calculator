@@ -65,6 +65,29 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     die('Failed to create a backup.');
 }
 
+
+// Number of backups to keep
+$numBackupsToKeep = 5;
+
+// Get all zip files in the backup directory
+$backupFiles = glob($backupDir . '/*.zip');
+
+// Sort files by modification time, most recent first
+usort($backupFiles, function($a, $b) {
+    return filemtime($b) - filemtime($a);
+});
+
+// Remove older backups, keep only the most recent $numBackupsToKeep
+if (count($backupFiles) > $numBackupsToKeep) {
+    $filesToDelete = array_slice($backupFiles, $numBackupsToKeep);
+    foreach ($filesToDelete as $file) {
+        unlink($file);
+        logMessage("Deleted old backup file: $file");
+    }
+}
+
+
+
 // GitHub API URL to download the repository zip
 $repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
 
