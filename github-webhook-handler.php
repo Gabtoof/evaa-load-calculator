@@ -17,8 +17,6 @@ logMessage("Webhook handler started.");
 // Validate the GitHub signature
 $headers = getallheaders();
 $hubSignature = $headers['X-Hub-Signature'] ?? '';
-
-// Split signature into algorithm and hash
 list($algo, $hash) = explode('=', $hubSignature, 2);
 
 // Payload
@@ -41,7 +39,7 @@ $pluginDir = dirname(__FILE__);
 // Backup directory within the plugin directory
 $backupDir = $pluginDir . '/backups';
 if (!is_dir($backupDir)) {
-    mkdir($backupDir, 0755, true); // Ensure the backup directory exists
+    mkdir($backupDir, 0755, true);
 }
 
 // Adjusted backup file path to save within the new backups directory
@@ -52,10 +50,8 @@ $zip = new ZipArchive();
 if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
     foreach ($files as $name => $file) {
-        // Skip directories and zip files
         if (!$file->isDir() && $file->getExtension() !== 'zip') {
             $filePath = $file->getRealPath();
-            // Ensure the backup zip file itself is not included
             if ($filePath !== $backupFile) {
                 $relativePath = substr($filePath, strlen($pluginDir) + 1);
                 $zip->addFile($filePath, $relativePath);
@@ -65,8 +61,8 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     $zip->close();
     logMessage("Backup created successfully: $backupFile");
 } else {
-    logMessage("Failed to create a backup of the existing plugin directory.");
-    die('Failed to create a backup of the existing plugin directory.');
+    logMessage("Failed to create a backup.");
+    die('Failed to create a backup.');
 }
 
 // GitHub API URL to download the repository zip
@@ -80,7 +76,7 @@ curl_setopt($ch, CURLOPT_URL, $repoZipUrl);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Accept: application/vnd.github.v3+json',
     'User-Agent: EVAA Updater',
-    'Authorization: token ' . $PAT // Use the PAT for authentication
+    'Authorization: token ' . $PAT
 ));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -104,17 +100,58 @@ curl_close($ch);
 
 // Extract the zip file
 $zip = new ZipArchive;
-if ($zip->open($tempZip) === TRUE) {
-    $zip->extractTo($pluginDir);
+$res = $zip->open($tempZip);
+if ($res === TRUE) {
+    // Create a temporary directory for extraction
+    $tempExtractDir = $pluginDir . '/temp_extract';
+    if (!is_dir($tempExtractDir)) {
+        mkdir($tempExtractDir, 0755, true);
+    }
+
+    // Extract everything into the temporary directory
+    $zip->extractTo($tempExtractDir);
     $zip->close();
+
+    // Move files from the temp directory to the plugin directory
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($tempExtractDir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach ($iterator as $item) {
+        $destPath = $pluginDir . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+        if ($item->isDir()) {
+            if (!is_dir($destPath)) {
+                mkdir($destPath);
+            }
+        } else {
+            rename($item, $destPath);
+        }
+    }
+
+    // Cleanup: Remove the temporary extraction directory
+    $iterator = new RecursiveDirectoryIterator($tempExtractDir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator(
+        $iterator,
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($files as $file) {
+        if ($file->isDir()) {
+            rmdir($file->getRealPath());
+        } else {
+            unlink($file->getRealPath());
+        }
+    }
+    rmdir($tempExtractDir);
+
     logMessage("Plugin updated successfully.");
     unlink($tempZip); // Remove the temporary zip file
 } else {
-    logMessage("Failed to update the plugin.");
-    die('Failed to update the plugin.');
+    logMessage("Failed to open ZIP file: " . $tempZip);
+    die("Failed to open ZIP file.");
 }
 
 // Cleanup and final steps
 logMessage("Webhook handler completed successfully.");
-http_response_code(200); // Indicate successful completion
+http_response_code(200);
 ?>
