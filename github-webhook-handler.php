@@ -35,64 +35,74 @@ if (!hash_equals($hash, $payloadHash)) {
 
 logMessage("GitHub signature verified.");
 
-// Define the API URL to fetch the file content from GitHub
-$apiUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/contents/evaa-load-calculator.php';
+// Plugin directory and backup file path
+$pluginDir = dirname(__FILE__);
+$backupFile = $pluginDir . '/../evaa-load-calculator-backup-' . date('Y-m-d-H-i-s') . '.zip';
 
-logMessage("Fetching file from GitHub API: $apiUrl");
+// Create a zip archive of the current plugin directory
+$zip = new ZipArchive();
+if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
+    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
+    foreach ($files as $name => $file) {
+        if (!$file->isDir()) {
+            $filePath = $file->getRealPath();
+            $relativePath = substr($filePath, strlen($pluginDir) + 1);
+            $zip->addFile($filePath, $relativePath);
+        }
+    }
+    $zip->close();
+    logMessage("Backup created successfully: $backupFile");
+} else {
+    logMessage("Failed to create a backup of the existing plugin directory.");
+    die('Failed to create a backup of the existing plugin directory.');
+}
+
+// GitHub API URL to download the repository zip
+$repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
+
+$tempZip = $pluginDir . '/temp_plugin.zip'; // Temporary file path for the downloaded zip
 
 // Set up a cURL handle for the API request
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $apiUrl);
+curl_setopt($ch, CURLOPT_URL, $repoZipUrl);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Accept: application/vnd.github.v3.raw',
-    'User-Agent: EVAA Updater', // GitHub requires a user-agent header
-    'Authorization: token ' . $PAT // If using authentication, add 'Authorization: token YOUR_PERSONAL_ACCESS_TOKEN' here
+    'Accept: application/vnd.github.v3+json',
+    'User-Agent: EVAA Updater',
+    'Authorization: token ' . $PAT // Use the PAT for authentication
 ));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+curl_setopt($ch, CURLOPT_FAILONERROR, true);
+
+// Save the downloaded zip file
+$output = fopen($tempZip, 'w');
+curl_setopt($ch, CURLOPT_FILE, $output);
 
 // Execute the request
 $response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+if (curl_errno($ch)) {
+    $error_msg = curl_error($ch);
+    logMessage("Failed to download the repository zip: " . $error_msg);
+    die('Failed to download the repository zip.');
+}
+fclose($output);
 curl_close($ch);
 
-// Check if the API request was successful
-if ($httpCode != 200) {
-    logMessage("Failed to fetch file via GitHub API. HTTP status code: $httpCode");
-    die('Failed to fetch file via GitHub API.');
+// Extract the zip file
+$zip = new ZipArchive;
+if ($zip->open($tempZip) === TRUE) {
+    $zip->extractTo($pluginDir);
+    $zip->close();
+    logMessage("Plugin updated successfully.");
+    unlink($tempZip); // Remove the temporary zip file
+} else {
+    logMessage("Failed to update the plugin.");
+    die('Failed to update the plugin.');
 }
 
-$fileContents = $response;
-
-logMessage("File fetched from GitHub API successfully.");
-
-// Define the path to where the file should be saved
-$localFilePath = dirname(__FILE__) . '/evaa-load-calculator.php';
-
-logMessage("Local file path: $localFilePath");
-
-// Backup existing file before updating
-$backupFilePath = $localFilePath . '.bak';
-if (!copy($localFilePath, $backupFilePath)) {
-    logMessage("Failed to create a backup of the existing plugin file.");
-    die('Failed to create a backup of the existing plugin file.');
-}
-
-logMessage("Backup created successfully: $backupFilePath");
-
-// Use file_put_contents to save the file to the local path, replacing the old one
-$result = file_put_contents($localFilePath, $fileContents);
-
-if ($result === false) {
-    logMessage("Failed to update the plugin file.");
-    die('Failed to update the plugin file.');
-}
-
-logMessage("Plugin file updated successfully. Bytes written: $result");
-
-// Log the payload for debugging purposes
-file_put_contents('webhook_payload.log', $payload, FILE_APPEND);
-
+// Cleanup and final steps
 logMessage("Webhook handler completed successfully.");
-
-http_response_code(200); // Respond to GitHub that the webhook was received successfully
+http_response_code(200); // Indicate successful completion
 ?>
