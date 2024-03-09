@@ -45,8 +45,8 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $apiUrl);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Accept: application/vnd.github.v3.raw',
-    'User-Agent: My-GitHub-App' // GitHub requires a user-agent header
-    // If using authentication, add 'Authorization: token YOUR_PERSONAL_ACCESS_TOKEN' here
+    'User-Agent: EVAA Updater' // GitHub requires a user-agent header
+    'Authorization: token ' . $PAT // If using authentication, add 'Authorization: token YOUR_PERSONAL_ACCESS_TOKEN' here
 ));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
