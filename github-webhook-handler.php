@@ -65,7 +65,6 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     die('Failed to create a backup.');
 }
 
-
 // Number of backups to keep
 $numBackupsToKeep = 5;
 
@@ -85,8 +84,6 @@ if (count($backupFiles) > $numBackupsToKeep) {
         logMessage("Deleted old backup file: $file");
     }
 }
-
-
 
 // GitHub API URL to download the repository zip
 $repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
@@ -121,10 +118,37 @@ if (curl_errno($ch)) {
 fclose($output);
 curl_close($ch);
 
+// Define directories and files to preserve
+$preserveItems = ['backups', '.htaccess', 'config.php'];
+
+// Cleanup existing files/directories in the plugin directory
+$pluginItems = array_diff(scandir($pluginDir), array('..', '.', ...$preserveItems));
+foreach ($pluginItems as $item) {
+    $itemPath = $pluginDir . '/' . $item;
+    if (is_dir($itemPath)) {
+        // Recursively delete directories
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($itemPath, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileinfo) {
+            if ($fileinfo->isDir()) {
+                rmdir($fileinfo->getRealPath());
+            } else {
+                unlink($fileinfo->getRealPath());
+            }
+        }
+        rmdir($itemPath);
+    } else {
+        // Delete files
+        unlink($itemPath);
+    }
+}
+
 // Extract the ZIP file to a temporary directory
 $zip = new ZipArchive;
-$res = $zip->open($tempZip);
-if ($res === TRUE) {
+if ($zip->open($tempZip) === TRUE) {
     $tempExtractDir = sys_get_temp_dir() . '/extracted_plugin_' . uniqid();
     if (!is_dir($tempExtractDir)) {
         mkdir($tempExtractDir, 0755, true);
