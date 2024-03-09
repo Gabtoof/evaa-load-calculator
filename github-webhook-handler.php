@@ -119,7 +119,7 @@ fclose($output);
 curl_close($ch);
 
 // Define directories and files to preserve
-$preserveItems = ['backups', '.htaccess', 'config.php', 'temp_plugin.zip'];
+$preserveItems = ['backups', '.htaccess', 'config.php', 'temp_plugin.zip', 'github-webhook-handler.php'];
 
 // Cleanup existing files/directories in the plugin directory
 $pluginItems = array_diff(scandir($pluginDir), array('..', '.', ...$preserveItems));
