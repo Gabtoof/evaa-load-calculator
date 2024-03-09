@@ -1,6 +1,7 @@
 <?php
 // github-webhook-handler.php
-include_once 'config.php';
+//include_once 'config.php';
+$SECRET_KEY = 'test';
 
 // Validate the GitHub signature
 $headers = getallheaders();
@@ -25,7 +26,9 @@ if ($hash !== $payloadHash) {
 $fileUrl = 'https://raw.githubusercontent.com/Gabtoof/evaa-load-calculator/main/evaa-load-calculator.php';
 
 // Define the path to where the file should be saved (typically in your plugin's directory)
-$localFilePath = plugin_dir_path(__FILE__) . 'evaa-load-calculator.php'; //asumes handler.php is in same folder as load-calc
+//$localFilePath = plugin_dir_path(__FILE__) . 'evaa-load-calculator.php'; //asumes handler.php is in same folder as load-calc
+$localFilePath = dirname(__FILE__) . '/evaa-load-calculator.php'; // Assuming they're in the same directory
+
 
 // Backup existing file before updating
 $backupFilePath = $localFilePath . '.bak';
