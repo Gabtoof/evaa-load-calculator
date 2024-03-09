@@ -11,7 +11,7 @@ function logMessage($message) {
     $timestamp = date('Y-m-d H:i:s');
     file_put_contents($logFilePath, "[$timestamp] $message\n", FILE_APPEND);
 }
-
+ 
 logMessage("Webhook handler started.");
 
 // Validate the GitHub signature
