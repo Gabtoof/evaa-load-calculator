@@ -189,6 +189,22 @@ if ($res === TRUE) {
     array_map('unlink', glob("$tempExtractDir/*.*"));
     rmdir($tempExtractDir);
 
+
+// Plugin's main PHP file that contains the version number
+$pluginMainFile = $pluginDir . '/evaa-load-calculator.php';
+
+// Read the content of the main plugin file
+$pluginMainFileContent = file_get_contents($pluginMainFile);
+
+// Use a regular expression to match the version line and extract the version number
+if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
+    $versionNumber = $matches[1];
+    logMessage("Plugin version after update: $versionNumber");
+} else {
+    logMessage("Failed to extract plugin version.");
+}
+
+
     logMessage("Plugin updated successfully.");
 } else {
     logMessage("Failed to open ZIP file: " . $tempZip);
