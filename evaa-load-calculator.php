@@ -3,7 +3,7 @@
 Plugin Name: EVAA Load Calculator
 Plugin URI: https://github.com/Gabtoof/evaa-load-calculator
 Description: A plugin to calculate the electrical load for adding an EV charger.
-Version: 1.0.1b
+Version: 1.0.1c
 Author: Andrew Baituk
 */
 
@@ -682,7 +682,7 @@ label[id$="_wattage_label"] {
 
 
 <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">
-    TESTPanel Capacity:
+    Panel Capacity:
 </label>
 <a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
 
