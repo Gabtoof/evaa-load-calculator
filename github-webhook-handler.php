@@ -85,6 +85,37 @@ if (count($backupFiles) > $numBackupsToKeep) {
     }
 }
 
+// Automatically determine the script's own filename to exclude it from cleanup
+$selfFilename = basename(__FILE__);
+
+// Define directories and files to preserve
+$preserveItems = ['backups', '.htaccess', $selfFilename]; // Adjust as needed
+
+// Cleanup existing files/directories in the plugin directory
+$pluginItems = array_diff(scandir($pluginDir), ['..', '.', ...$preserveItems]);
+foreach ($pluginItems as $item) {
+    $itemPath = $pluginDir . '/' . $item;
+    if (is_dir($itemPath)) {
+        // Recursively delete directories
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($itemPath, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $fileinfo) {
+            if ($fileinfo->isDir()) {
+                rmdir($fileinfo->getRealPath());
+            } else {
+                unlink($fileinfo->getRealPath());
+            }
+        }
+        rmdir($itemPath);
+    } else {
+        // Delete files
+        unlink($itemPath);
+    }
+}
+
 // GitHub API URL to download the repository zip
 $repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
 
@@ -118,37 +149,10 @@ if (curl_errno($ch)) {
 fclose($output);
 curl_close($ch);
 
-// Define directories and files to preserve
-$preserveItems = ['backups', '.htaccess', 'config.php', 'temp_plugin.zip', 'github-webhook-handler.php'];
-
-// Cleanup existing files/directories in the plugin directory
-$pluginItems = array_diff(scandir($pluginDir), array('..', '.', ...$preserveItems));
-foreach ($pluginItems as $item) {
-    $itemPath = $pluginDir . '/' . $item;
-    if (is_dir($itemPath)) {
-        // Recursively delete directories
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($itemPath, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $fileinfo) {
-            if ($fileinfo->isDir()) {
-                rmdir($fileinfo->getRealPath());
-            } else {
-                unlink($fileinfo->getRealPath());
-            }
-        }
-        rmdir($itemPath);
-    } else {
-        // Delete files
-        unlink($itemPath);
-    }
-}
-
 // Extract the ZIP file to a temporary directory
 $zip = new ZipArchive;
-if ($zip->open($tempZip) === TRUE) {
+$res = $zip->open($tempZip);
+if ($res === TRUE) {
     $tempExtractDir = sys_get_temp_dir() . '/extracted_plugin_' . uniqid();
     if (!is_dir($tempExtractDir)) {
         mkdir($tempExtractDir, 0755, true);
