@@ -98,60 +98,53 @@ if (curl_errno($ch)) {
 fclose($output);
 curl_close($ch);
 
-// Extract the zip file
+// Extract the ZIP file to a temporary directory
 $zip = new ZipArchive;
 $res = $zip->open($tempZip);
 if ($res === TRUE) {
-    // Create a temporary directory for extraction
-    $tempExtractDir = $pluginDir . '/temp_extract';
+    $tempExtractDir = sys_get_temp_dir() . '/extracted_plugin_' . uniqid();
     if (!is_dir($tempExtractDir)) {
         mkdir($tempExtractDir, 0755, true);
     }
 
-    // Extract everything into the temporary directory
     $zip->extractTo($tempExtractDir);
     $zip->close();
 
-    // Move files from the temp directory to the plugin directory
+    // Assume the first directory is the one we want to move files from
+    $extractedFolders = array_diff(scandir($tempExtractDir), ['..', '.']);
+    $githubFolder = reset($extractedFolders);
+    $sourceDir = $tempExtractDir . '/' . $githubFolder;
+
+    // Move files from the source directory to the plugin directory
     $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($tempExtractDir, RecursiveDirectoryIterator::SKIP_DOTS),
+        new RecursiveDirectoryIterator($sourceDir, RecursiveDirectoryIterator::SKIP_DOTS),
         RecursiveIteratorIterator::SELF_FIRST
     );
 
     foreach ($iterator as $item) {
-        $destPath = $pluginDir . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+        $destPath = $pluginDir . '/' . $iterator->getSubPathName();
         if ($item->isDir()) {
             if (!is_dir($destPath)) {
                 mkdir($destPath);
             }
         } else {
-            rename($item, $destPath);
+            copy($item, $destPath);
         }
     }
 
-    // Cleanup: Remove the temporary extraction directory
-    $iterator = new RecursiveDirectoryIterator($tempExtractDir, RecursiveDirectoryIterator::SKIP_DOTS);
-    $files = new RecursiveIteratorIterator(
-        $iterator,
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-    foreach ($files as $file) {
-        if ($file->isDir()) {
-            rmdir($file->getRealPath());
-        } else {
-            unlink($file->getRealPath());
-        }
-    }
+    // Cleanup
+    array_map('unlink', glob("$tempExtractDir/*.*"));
     rmdir($tempExtractDir);
 
     logMessage("Plugin updated successfully.");
-    unlink($tempZip); // Remove the temporary zip file
 } else {
     logMessage("Failed to open ZIP file: " . $tempZip);
     die("Failed to open ZIP file.");
 }
 
+unlink($tempZip); // Remove the temporary zip file
+
 // Cleanup and final steps
 logMessage("Webhook handler completed successfully.");
 http_response_code(200);
-?> 
+?>
