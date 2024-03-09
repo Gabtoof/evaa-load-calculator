@@ -90,7 +90,7 @@ if (count($backupFiles) > $numBackupsToKeep) {
 }
 
 // Define directories and files to preserve in the cleanup process
-$preserveItems = ['backups', $selfFilename, $logFilename]; // Dynamically include this script and the log file
+$preserveItems = ['backups', 'config.php', $selfFilename, $logFilename]; // Dynamically include this script and the log file
 
 // Cleanup existing files/directories in the plugin directory
 $pluginItems = array_diff(scandir($pluginDir), ['..', '.', ...$preserveItems]);
