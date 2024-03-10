@@ -24,6 +24,7 @@ function logMessage($message) {
     file_put_contents($logFilePath, "[$timestamp] $message\n", FILE_APPEND);
 }
 
+logMessage("");
 logMessage("Webhook handler started.");
 
 
