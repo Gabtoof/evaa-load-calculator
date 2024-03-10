@@ -3,7 +3,7 @@
 Plugin Name: EVAA Load Calculator
 Plugin URI: https://github.com/Gabtoof/evaa-load-calculator
 Description: A plugin to calculate the electrical load for adding an EV charger.
-Version: 1.0.43
+Version: 1.0.44
 Author: Andrew Baituk
 */
 
@@ -25,7 +25,7 @@ Author: Andrew Baituk
 [*] remove dishwasher
 [*] test if m2 used, conversion (seems ok if sq ft used)
 [*] fix hot tub/in floor heat being added even if no
-[ ] handle plugin updates
+[ ] handle plugin updates - maybe broke it trying to compare versions
 
 [*] expand info on EV charger - suggest lower charging when needed
 [*] suggest load balancer/loadmiser when applicable
