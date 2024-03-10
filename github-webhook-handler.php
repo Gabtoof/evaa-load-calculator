@@ -23,6 +23,8 @@ function logMessage($message) {
 }
 
 
+// Read the content of the main plugin file
+$pluginMainFileContent = file_get_contents($pluginMainFile);
 // Use a regular expression to match the version line and extract the version number
 if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
     $versionNumberBefore = $matches[1];
@@ -220,6 +222,8 @@ if ($res === TRUE) {
     die("Failed to open ZIP file.");
 }
 
+// Re-Read the content of the main plugin file
+$pluginMainFileContent = file_get_contents($pluginMainFile);
 // Use a regular expression to match the version line and extract the version number
 if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
     $versionNumberAfter = $matches[1];
