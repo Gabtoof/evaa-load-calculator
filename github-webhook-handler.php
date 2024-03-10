@@ -76,19 +76,29 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     foreach ($files as $name => $file) {
         // Get real path of the current file
         $filePath = $file->getRealPath();
-        
-        // Skip if the file is the current backup file, the log file, or any file within the backups directory
-        if ($filePath !== $backupFile && !in_array(basename($filePath), [$selfFilename, $logFilename])) {
-            // Correctly exclude all contents within the backups directory
-            if (strpos($filePath, $backupDir) !== 0) {
-                // Calculate relative path for zip inclusion
-                $relativePath = substr($filePath, strlen($pluginDir) + 1);
-                $zip->addFile($filePath, $relativePath);
+        $fileName = basename($filePath);
+
+        // Determine if the file is within the backup directory or is the script/log file itself
+        $isExcluded = $filePath == $backupFile || in_array($fileName, [$selfFilename, $logFilename]) || strpos($filePath, $backupDir) === 0;
+
+        // Log each file and its exclusion status
+        logMessage("Considering file: $filePath for backup. Excluded: " . ($isExcluded ? "Yes" : "No"));
+
+        if (!$isExcluded) {
+            // Calculate relative path for zip inclusion
+            $relativePath = substr($filePath, strlen($pluginDir) + 1);
+            if($zip->addFile($filePath, $relativePath)) {
+                logMessage("Added to backup: $relativePath");
+            } else {
+                logMessage("Failed to add to backup: $relativePath");
             }
         }
     }
-    $zip->close();
-    logMessage("Backup created successfully: $backupFile");
+    if ($zip->close()) {
+        logMessage("Backup created successfully: $backupFile");
+    } else {
+        logMessage("Failed to finalize the backup.");
+    }
 } else {
     logMessage("Failed to create a backup.");
     die('Failed to create a backup.');
