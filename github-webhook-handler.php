@@ -33,11 +33,11 @@ if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matc
 }
 
 
-    logMessage("Plugin updated successfully.");
-} else {
-    logMessage("Failed to open ZIP file: " . $tempZip);
-    die("Failed to open ZIP file.");
-}
+//     logMessage("Plugin updated successfully.");
+// } else {
+//     logMessage("Failed to open ZIP file: " . $tempZip);
+//     die("Failed to open ZIP file.");
+// }
 
 // Validate the GitHub signature
 $headers = getallheaders();
@@ -219,11 +219,11 @@ if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matc
 }
 
 
-    logMessage("Plugin updated successfully.");
-} else {
-    logMessage("Failed to open ZIP file: " . $tempZip);
-    die("Failed to open ZIP file.");
-}
+//     logMessage("Plugin updated successfully.");
+// } else {
+//     logMessage("Failed to open ZIP file: " . $tempZip);
+//     die("Failed to open ZIP file.");
+// }
 
 // Now compare the versions and log whether an update occurred
 if ($versionNumberBefore !== $versionNumberAfter) {
