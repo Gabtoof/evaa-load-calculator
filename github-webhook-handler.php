@@ -1,6 +1,21 @@
 <?php
 // github-webhook-handler.php
-include_once 'config.php';
+// include_once 'config.php';
+
+// get values from wp_config
+if (defined('GITHUB_SECRET_KEY')) {
+    $SECRET_KEY = constant('GITHUB_SECRET_KEY');
+} else {
+    // Handle the case where GITHUB_SECRET_KEY is not defined
+    $SECRET_KEY = 'valuenotset';
+}
+
+if (defined('GITHUB_PAT')) {
+    $PAT = constant('GITHUB_PAT');
+} else {
+    // Handle the case where GITHUB_SECRET_KEY is not defined
+    $PAT = 'valuenotset';
+}
 
 // Log file path
 $logFilePath = dirname(__FILE__) . '/github_webhook_handler.log';
