@@ -78,13 +78,14 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
         $filePath = $file->getRealPath();
         
         // Skip if the file is the current backup file, the log file, or any file within the backups directory
-        if ($filePath == $backupFile || in_array(basename($filePath), [$selfFilename, $logFilename]) || strpos($filePath, $backupDir) === 0) {
-            continue;
+        if ($filePath !== $backupFile && !in_array(basename($filePath), [$selfFilename, $logFilename])) {
+            // Correctly exclude all contents within the backups directory
+            if (strpos($filePath, $backupDir) !== 0) {
+                // Calculate relative path for zip inclusion
+                $relativePath = substr($filePath, strlen($pluginDir) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
         }
-
-        // Calculate relative path for zip inclusion
-        $relativePath = substr($filePath, strlen($pluginDir) + 1);
-        $zip->addFile($filePath, $relativePath);
     }
     $zip->close();
     logMessage("Backup created successfully: $backupFile");
