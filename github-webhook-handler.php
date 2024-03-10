@@ -27,8 +27,8 @@ function logMessage($message) {
 $pluginMainFileContent = file_get_contents($pluginMainFile);
 // Use a regular expression to match the version line and extract the version number
 if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
-    $versionNumberBefore = $matches[1];
-    logMessage("Plugin version before update: $versionNumberBefore");
+    $versionNumber = $matches[1];
+    logMessage("Plugin version before update: $versionNumber");
 } else {
     logMessage("Failed to extract plugin version before update.");
 }
