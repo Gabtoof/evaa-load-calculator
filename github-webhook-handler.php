@@ -74,13 +74,17 @@ $zip = new ZipArchive();
 if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
     foreach ($files as $name => $file) {
-        if (!$file->isDir()) {
-            $filePath = $file->getRealPath();
-            if ($filePath !== $backupFile && !in_array(basename($filePath), [$selfFilename, $logFilename])) {
-                $relativePath = substr($filePath, strlen($pluginDir) + 1);
-                $zip->addFile($filePath, $relativePath);
-            }
+        // Get real path of the current file
+        $filePath = $file->getRealPath();
+        
+        // Skip if the file is the current backup file, the log file, or any file within the backups directory
+        if ($filePath == $backupFile || in_array(basename($filePath), [$selfFilename, $logFilename]) || strpos($filePath, $backupDir) === 0) {
+            continue;
         }
+
+        // Calculate relative path for zip inclusion
+        $relativePath = substr($filePath, strlen($pluginDir) + 1);
+        $zip->addFile($filePath, $relativePath);
     }
     $zip->close();
     logMessage("Backup created successfully: $backupFile");
@@ -89,6 +93,8 @@ if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
     die('Failed to create a backup.');
 }
 
+
+// Cleanup backups
 // Number of backups to keep
 $numBackupsToKeep = 5;
 
@@ -136,7 +142,7 @@ foreach ($pluginItems as $item) {
         unlink($itemPath);
     }
 }
-
+// Backup cleanup end
 
 // GitHub API URL to download the repository zip
 $repoZipUrl = 'https://api.github.com/repos/Gabtoof/evaa-load-calculator/zipball/main';
