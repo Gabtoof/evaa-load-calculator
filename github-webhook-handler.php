@@ -28,7 +28,7 @@ if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matc
     $versionNumberBefore = $matches[1];
     logMessage("Plugin version before update: $versionNumberBefore");
 } else {
-    logMessage("Failed to extract plugin version.");
+    logMessage("Failed to extract plugin version before update.");
 }
 
 
@@ -210,13 +210,7 @@ if ($res === TRUE) {
 
 
 
-// Use a regular expression to match the version line and extract the version number
-if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
-    $versionNumber = $matches[1];
-    logMessage("Plugin version after update: $versionNumber");
-} else {
-    logMessage("Failed to extract plugin version.");
-}
+
 
 
 // Log success
@@ -224,6 +218,14 @@ if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matc
 } else {
     logMessage("Failed to open ZIP file: " . $tempZip);
     die("Failed to open ZIP file.");
+}
+
+// Use a regular expression to match the version line and extract the version number
+if (preg_match('/Version:\s*(\d+(?:\.\d+){0,2})/', $pluginMainFileContent, $matches)) {
+    $versionNumberAfter = $matches[1];
+    logMessage("Plugin version after update: $versionNumberAfter");
+} else {
+    logMessage("Failed to extract plugin version after update.");
 }
 
 unlink($tempZip); // Remove the temporary zip file
