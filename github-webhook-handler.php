@@ -59,49 +59,41 @@ if (!hash_equals($hash, $payloadHash)) {
 
 logMessage("GitHub signature verified.");
 
-
-// Backup directory within the plugin directory
-$backupDir = $pluginDir . '/backups';
+// Ensure backup directory exists or create it
+$backupDir = "{$pluginDir}/backups";
 if (!is_dir($backupDir)) {
     mkdir($backupDir, 0755, true);
 }
 
-// Adjusted backup file path to save within the new backups directory
-$backupFile = $backupDir . '/evaa-load-calculator-backup-' . date('Y-m-d-H-i-s') . '.zip';
+// Define backup file path
+$backupFile = "{$backupDir}/evaa-load-calculator-backup-" . date('Y-m-d-H-i-s') . '.zip';
 
-// Create a zip archive of the current plugin directory, excluding zip files
 $zip = new ZipArchive();
-if ($zip->open($backupFile, ZipArchive::CREATE) === TRUE) {
-    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir), RecursiveIteratorIterator::LEAVES_ONLY);
-    foreach ($files as $name => $file) {
-        // Get real path of the current file
-        $filePath = $file->getRealPath();
-        $fileName = basename($filePath);
-
-        // Determine if the file is within the backup directory or is the script/log file itself
-        $isExcluded = $filePath == $backupFile || in_array($fileName, [$selfFilename, $logFilename]) || strpos($filePath, $backupDir) === 0;
-
-        // Log each file and its exclusion status
-        logMessage("Considering file: $filePath for backup. Excluded: " . ($isExcluded ? "Yes" : "No"));
-
-        if (!$isExcluded) {
-            // Calculate relative path for zip inclusion
-            $relativePath = substr($filePath, strlen($pluginDir) + 1);
-            if($zip->addFile($filePath, $relativePath)) {
-                logMessage("Added to backup: $relativePath");
-            } else {
-                logMessage("Failed to add to backup: $relativePath");
-            }
-        }
-    }
-    if ($zip->close()) {
-        logMessage("Backup created successfully: $backupFile");
-    } else {
-        logMessage("Failed to finalize the backup.");
-    }
-} else {
+if ($zip->open($backupFile, ZipArchive::CREATE) !== TRUE) {
     logMessage("Failed to create a backup.");
     die('Failed to create a backup.');
+}
+
+foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pluginDir, RecursiveDirectoryIterator::SKIP_DOTS)) as $file) {
+    $filePath = $file->getRealPath();
+    $relativePath = substr($filePath, strlen($pluginDir) + 1);
+
+    if ($filePath === $backupFile || in_array(basename($filePath), [$selfFilename, $logFilename]) || strpos($filePath, $backupDir) === 0) {
+        logMessage("Excluded from backup: $relativePath");
+        continue;
+    }
+
+    if ($zip->addFile($filePath, $relativePath)) {
+        logMessage("Added to backup: $relativePath");
+    } else {
+        logMessage("Failed to add to backup: $relativePath");
+    }
+}
+
+if ($zip->close()) {
+    logMessage("Backup created successfully: $backupFile");
+} else {
+    logMessage("Failed to finalize the backup.");
 }
 
 
