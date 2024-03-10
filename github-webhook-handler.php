@@ -66,7 +66,8 @@ if (!is_dir($backupDir)) {
 }
 
 // Define backup file path
-$backupFile = "{$backupDir}/evaa-load-calculator-backup-" . date('Y-m-d-H-i-s') . '.zip';
+//$backupFile = "{$backupDir}/evaa-load-calculator-backup-" . date('Y-m-d-H-i-s') . '.zip';
+$backupFile = "{$pluginDir}/testbackup.zip";
 
 $zip = new ZipArchive();
 if ($zip->open($backupFile, ZipArchive::CREATE) !== TRUE) {
