@@ -710,7 +710,7 @@ function closeInfoPopup() {
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required> Amps<br>
 
     <label for="home_size">Size of home:</label>
-    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="input value">
+    <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="Include basement">
     <select name="home_size_unit" id="home_size_unit">
     <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
     <option value="m2" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'm2') ? 'selected' : ''; ?>>m²</option>
