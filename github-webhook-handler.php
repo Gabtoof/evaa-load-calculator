@@ -3,6 +3,7 @@
 // include_once 'config.php';
 
 // get values from wp_config
+require_once('/var/www/html/wp-load.php');
 if (defined('GITHUB_SECRET_KEY')) {
     $SECRET_KEY = constant('GITHUB_SECRET_KEY');
 } else {
@@ -16,6 +17,9 @@ if (defined('GITHUB_PAT')) {
     // Handle the case where GITHUB_SECRET_KEY is not defined
     $PAT = 'valuenotset';
 }
+
+//echo "Value of GITHUB_PAT: $PAT";
+//echo "Value of GITHUB_SECRET_KEY: $SECRET_KEY";
 
 // Log file path
 $logFilePath = dirname(__FILE__) . '/github_webhook_handler.log';
