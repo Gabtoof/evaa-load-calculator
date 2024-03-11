@@ -682,7 +682,7 @@ label[id$="_wattage_label"] {
 
 
 <label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">
-    Panel Capacity:
+    Service Size:
 </label>
 <a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
 
