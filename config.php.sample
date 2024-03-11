@@ -1,0 +1,10 @@
+<?php
+// config.php
+$SECRET_KEY = 'notset';
+$PAT = 'notset';
+
+
+
+
+
+
