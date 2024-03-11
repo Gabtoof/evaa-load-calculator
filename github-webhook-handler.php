@@ -2,8 +2,14 @@
 // github-webhook-handler.php
 // include_once 'config.php';
 
+
 // get values from wp_config
-require_once('/var/www/html/wp-load.php');
+// Plugin directory
+$pluginDir = dirname(__FILE__); // Gets the directory of the current file.
+$wpLoadPath = dirname(dirname(dirname($pluginDir))) . '/wp-load.php'; // Move up 3 levels and append wp-load.php
+
+require_once($wpLoadPath);
+// require_once('/var/www/html/wp-load.php');
 if (defined('GITHUB_SECRET_KEY')) {
     $SECRET_KEY = constant('GITHUB_SECRET_KEY');
 } else {
@@ -28,8 +34,8 @@ $logFilePath = dirname(__FILE__) . '/github_webhook_handler.log';
 $selfFilename = basename(__FILE__);
 $logFilename = basename($logFilePath);
 
-// Plugin directory
-$pluginDir = dirname(__FILE__);
+
+
 
 // For getting version # later
 // Plugin's main PHP file that contains the version number
