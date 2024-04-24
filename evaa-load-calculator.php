@@ -489,10 +489,9 @@ $output .= "Available Capacity: " . $remaining_capacity . " W<br>";
 
 }
 
-// Assuming all required variables ($remaining_capacity, $stove_w, $clothes_dryer_w, $water_heater_w, and $ev_chargers) are defined above this snippet.
+// Assuming all required variables ($remaining_capacity, $ev_chargers) are defined above this snippet.
 
 $best_fit_charger = null;
-$shared_circuit_message = "";
 
 // Try to find a charger that fits without sharing circuits
 foreach (array_reverse($ev_chargers) as $charger) {
@@ -502,51 +501,19 @@ foreach (array_reverse($ev_chargers) as $charger) {
     }
 }
 
-// If no charger fits, try considering sharing circuits with high-wattage appliances
-if (!$best_fit_charger) {
-    $appliance_wattages = [
-        'stove' => $stove_w,
-        'clothes dryer' => $clothes_dryer_w,
-        'water heater' => $water_heater_w
-    ];
-
-    foreach ($appliance_wattages as $appliance => $wattage) {
-        $temp_capacity = $remaining_capacity + $wattage; // Consider sharing the circuit
-        foreach (array_reverse($ev_chargers) as $charger) {
-            if ($temp_capacity >= $charger['wattage']) {
-                $best_fit_charger = $charger;
-                
-                // Check the $service_delivery status to customize the message
-                if ($service_delivery == 'above') {
-                    $shared_circuit_message = "This will require either upgrading your electrical service OR sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger. As costs may be comparable, a service upgrade is recommended as it offers fastest charging and future growth potential.";
-                } else {
-                    $shared_circuit_message = "This will require sharing the electrical circuit with your $appliance using an Energy Management System/similar device (available from your electrician) OR a smart EV charger.";
-                }
-                
-                break 2; // Found a suitable charger with sharing, exit both loops
-            }
-        }
-    }
-}
-
-
 // Construct the output message
 $message = ''; // Initialize message as empty
 if ($formSubmitted) { // Only construct the message if the form has been submitted
     if ($best_fit_charger) {
         $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg\" alt=\"Green checkmark\" width=\"20\" height=\"20\">
         <strong>The best fit EV charger for your setup is: {$best_fit_charger['amperage']}A ({$best_fit_charger['kW']}kW), " .
-                   "adding roughly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p> $shared_circuit_message </strong><p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
+                   "adding roughly {$best_fit_charger['kmPerHour']}km/h, with a full charge in {$best_fit_charger['fullChargeTime']} (based on a typical electric sedan).<p>Note: A full charge is seldom required, as EVs often have more range than will be used daily.";
     } else {
-        if ($service_delivery === 'above') {
-            $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
-            <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Budget roughly $2000 since your residence is connected to an outdoor power pole.</strong>";
-        } else {
-            $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
-            <strong>Based on the provided details, you might need to upgrade your electrical service to add an EV charger. Contact an electrician for quotes.</strong>";
-        }
+        $message = "<img src=\"https://upload.wikimedia.org/wikipedia/commons/5/5f/Red_X.svg\" alt=\"Red X\" width=\"20\" height=\"20\">
+        <strong>Based on the provided details, you may need EITHER an Energy Management System (which limits charging, based on other electrical loads in use) OR an upgrade to your electrical service.</strong>";
     }
 }
+
 
 
 
