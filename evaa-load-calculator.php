@@ -814,7 +814,7 @@ function closeInfoPopup() {
 
 
 
-    <label for="infloor_heat_yes">Do you have electric in-floor heating?</label>
+    <label for="infloor_heat_yes" style="font-weight: bold;">Do you have electric in-floor heating?</label>
     <input type="radio" id="infloor_heat_yes" name="infloor_heat" value="yes">
     <label for="infloor_heat_yes">Yes</label>
     <input type="radio" id="infloor_heat_no" name="infloor_heat" value="no" checked>
