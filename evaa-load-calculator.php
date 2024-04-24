@@ -783,7 +783,7 @@ function closeInfoPopup() {
 
 
 
-<label for="ac_yes">Do you have Air Conditioning?</label>
+<label for="ac_yes" style="font-weight: bold;">Do you have Air Conditioning?</label>
 <input type="radio" id="ac_yes" name="ac" value="yes" >
 <label for="ac_yes">Yes</label>
 <input type="radio" id="ac_no" name="ac" value="no"  checked>
