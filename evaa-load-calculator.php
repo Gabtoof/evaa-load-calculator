@@ -1051,15 +1051,15 @@ document.addEventListener("DOMContentLoaded", function() {
 // Display feedback message after form submission
 // Always display message if available
    
-   if (isset($message) && $message) {
+if (isset($message) && $message) {
     echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
     echo "<p>" . $message . "</p>";
     echo '</div>';
 }
 
-// Button to toggle the visibility of the output
+// Button to toggle the visibility of the output, with italic text
 echo '<div style="text-align: center; margin: 20px auto; width: 80%;">';
-echo '<button id="toggleButton" onclick="toggleOutput()">Click to reveal detailed output</button>';
+echo '<button id="toggleButton" onclick="toggleOutput()" style="font-style: italic;">Click to reveal detailed output</button>';
 echo '</div>';
 
 // Wrap the output in a container div, initially hidden
