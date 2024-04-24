@@ -719,7 +719,7 @@ function closeInfoPopup() {
 
     <br>
 
-    <label for="heating">Heating:</label>
+    <label for="heating" style="font-weight: bold;">Heating:</label>
 <select name="heating" id="heating">
     <option value="gas" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'gas') ? 'selected' : ''; ?>>Gas Furnace</option>
     <option value="electric" <?php echo (isset($_POST['heating']) && $_POST['heating'] == 'electric') ? 'selected' : ''; ?>>Electric Furnace</option>
@@ -734,7 +734,7 @@ function closeInfoPopup() {
     <input type="number" name="user_provided_heating_wattage" id="user_provided_heating_wattage" style="display: none;" placeholder="Input value or 0 if none">
     <br>
 
-    <label for="stove">Stove:</label>
+    <label for="stove" style="font-weight: bold;">Stove:</label>
 <select name="stove" id="stove" onchange="showWattageInput(this.value);">
     <option value="gas" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
     <option value="electric" <?php echo (isset($_POST['stove']) && $_POST['stove'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
@@ -749,7 +749,7 @@ function closeInfoPopup() {
 
 
 
-    <label for="water_heater">Water Heater:</label>
+    <label for="water_heater" style="font-weight: bold;">Water Heater:</label>
 <select name="water_heater" id="water_heater">
     <option value="gas" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
     <option value="electric" <?php echo (isset($_POST['water_heater']) && $_POST['water_heater'] == 'electric') ? 'selected' : ''; ?>>Electric Tank</option>
@@ -767,7 +767,7 @@ function closeInfoPopup() {
 
 
 
-<label for="clothes_dryer">Dryer:</label>
+<label for="clothes_dryer" style="font-weight: bold;">Dryer:</label>
 <select name="clothes_dryer" id="clothes_dryer">
     <option value="gas" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'gas') ? 'selected' : ''; ?>>Gas</option>
     <option value="electric" <?php echo (isset($_POST['clothes_dryer']) && $_POST['clothes_dryer'] == 'electric') ? 'selected' : ''; ?>>Electric</option>
@@ -804,7 +804,7 @@ function closeInfoPopup() {
 <input type="number" id="user_provided_dishwasher_wattage" name="user_provided_dishwasher_wattage" style="display:none;">
 -->
 
-    <label for="hottub_yes">Do you have a hot tub/pool/spa?</label>
+    <label for="hottub_yes" style="font-weight: bold;">Do you have a hot tub/pool/spa?</label>
     <input type="radio" id="hottub_yes" name="hottub" value="yes">
     <label for="hottub_yes">Yes</label>
     <input type="radio" id="hottub_no" name="hottub" value="no" checked>
@@ -824,7 +824,7 @@ function closeInfoPopup() {
 
 
 
-<label for="service_delivery">Is your electrical service delivered:</label>
+<label for="service_delivery" style="font-weight: bold;">Is your electrical service delivered:</label>
 <select name="service_delivery" id="service_delivery">
     <option disabled selected value> -- select an option -- </option>
     <option value="above" <?php if ($service_delivery === 'above') echo 'selected'; ?>>Above Ground (visible power lines)</option>
