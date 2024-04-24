@@ -1049,21 +1049,36 @@ document.addEventListener("DOMContentLoaded", function() {
 // The HTML form and display results sections can then follow as previously described.
 
 // Display feedback message after form submission
-if($message) {
+ // Always display message if available
+ if (isset($message) && $message) {
     echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
     echo "<p>" . $message . "</p>";
     echo '</div>';
 }
 
-// Wrap the output in a container div and apply CSS to center it
-echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
+// Wrap the output in a container div, initially hidden
+echo '<div id="outputContainer" style="text-align: center; margin: 0 auto; width: 80%; display: none;">';
 echo "<p>Output:<br>" . $output . "</p>";
 echo '</div>';
 
+// Button to toggle the visibility of the output
+echo '<div style="text-align: center; margin: 20px auto; width: 80%;">';
+echo '<button onclick="toggleOutput()">Click to reveal detailed output</button>';
+echo '</div>';
 
+echo "<script>
+    function toggleOutput() {
+        var outputDiv = document.getElementById('outputContainer');
+        if (outputDiv.style.display === 'none') {
+            outputDiv.style.display = 'block';
+        } else {
+            outputDiv.style.display = 'none';
+        }
+    }
+</script>";
 
-    
-    return ob_get_clean(); // End output buffering and return everything
+return ob_get_clean(); // End output buffering and return everything
 }
 
-add_shortcode('load_calculator', 'load_calculator_form_shortcode'); 
+add_shortcode('load_calculator', 'load_calculator_form_shortcode');
+?>
