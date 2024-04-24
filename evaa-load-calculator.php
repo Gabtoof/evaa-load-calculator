@@ -1049,7 +1049,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // The HTML form and display results sections can then follow as previously described.
 
 // Display feedback message after form submission
- // Always display message if available
+// Always display message if available
  if (isset($message) && $message) {
     echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
     echo "<p>" . $message . "</p>";
@@ -1063,16 +1063,19 @@ echo '</div>';
 
 // Button to toggle the visibility of the output
 echo '<div style="text-align: center; margin: 20px auto; width: 80%;">';
-echo '<button onclick="toggleOutput()">Click to reveal detailed output</button>';
+echo '<button id="toggleButton" onclick="toggleOutput()">Click to reveal detailed output</button>';
 echo '</div>';
 
 echo "<script>
     function toggleOutput() {
         var outputDiv = document.getElementById('outputContainer');
+        var toggleBtn = document.getElementById('toggleButton');
         if (outputDiv.style.display === 'none') {
             outputDiv.style.display = 'block';
+            toggleBtn.textContent = 'Click to hide detailed output';
         } else {
             outputDiv.style.display = 'none';
+            toggleBtn.textContent = 'Click to reveal detailed output';
         }
     }
 </script>";
