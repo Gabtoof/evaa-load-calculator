@@ -565,7 +565,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reset'])) {
   }
   
 
-
+  
 //   // Handle clothes dryer selection (if submitted)
 //   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //     if ($_POST['clothes_dryer'] === 'clothes_dryer_wattage') {
@@ -1048,42 +1048,22 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // The HTML form and display results sections can then follow as previously described.
 
-// Display feedback message and toggleable output after form submission
-function load_calculator_form_shortcode() {
-    ob_start(); // Start output buffering
-
-    global $message, $output;  // Assuming these variables are defined in the global scope or passed to the function.
-
-    // Always display message if available
-    if (isset($message) && $message) {
-        echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
-        echo "<p>" . $message . "</p>";
-        echo '</div>';
-    }
-
-    // Wrap the output in a container div, initially hidden
-    echo '<div id="outputContainer" style="text-align: center; margin: 0 auto; width: 80%; display: none;">';
-    echo "<p>Output:<br>" . $output . "</p>";
+// Display feedback message after form submission
+if($message) {
+    echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
+    echo "<p>" . $message . "</p>";
     echo '</div>';
+}
 
-    // Button to toggle the visibility of the output
-    echo '<div style="text-align: center; margin: 20px auto; width: 80%;">';
-    echo '<button onclick="toggleOutput()">Click to reveal detailed output</button>';
-    echo '</div>';
+// Wrap the output in a container div and apply CSS to center it
+echo '<div style="text-align: center; margin: 0 auto; width: 80%;">';
+echo "<p>Output:<br>" . $output . "</p>";
+echo '</div>';
 
-    echo "<script>
-        function toggleOutput() {
-            var outputDiv = document.getElementById('outputContainer');
-            if (outputDiv.style.display === 'none') {
-                outputDiv.style.display = 'block';
-            } else {
-                outputDiv.style.display = 'none';
-            }
-        }
-    </script>";
 
+
+    
     return ob_get_clean(); // End output buffering and return everything
 }
 
-add_shortcode('load_calculator', 'load_calculator_form_shortcode');
-?>
+add_shortcode('load_calculator', 'load_calculator_form_shortcode'); 
