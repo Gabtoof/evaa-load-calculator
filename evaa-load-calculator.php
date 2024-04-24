@@ -681,7 +681,7 @@ label[id$="_wattage_label"] {
 
 
 
-<label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200">
+<label for="panel_capacity_amps" title="This is your breaker box, often in a basement. Size is often identified by the top breaker, and is typically one of: 60, 100, 150, 200" style="font-weight: bold;">
     Service Size:
 </label>
 <a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
@@ -710,7 +710,7 @@ function closeInfoPopup() {
 
     <input type="number" id="panel_capacity_amps" name="panel_capacity_amps" value="<?php echo isset($_POST['panel_capacity_amps']) ? $_POST['panel_capacity_amps'] : ''; ?>" placeholder="input value" required> Amps<br>
 
-    <label for="home_size">Size of home:</label>
+    <label for="home_size" style="font-weight: bold;">Size of home:</label>
     <input type="number" id="home_size" name="home_size" required value="<?php echo isset($_POST['home_size']) ? $_POST['home_size'] : ''; ?>" placeholder="Include basement">
     <select name="home_size_unit" id="home_size_unit">
     <option value="sqft" <?php echo (isset($_POST['home_size_unit']) && $_POST['home_size_unit'] == 'sqft') ? 'selected' : ''; ?>>sq ft</option>
