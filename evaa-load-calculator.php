@@ -687,11 +687,12 @@ label[id$="_wattage_label"] {
 <a href="javascript:void(0);" onclick="showInfoPopup();" style="text-decoration:none;"> (?)</a>
 
 <div id="infoPopup" style="display:none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid #ddd; z-index: 1000;">
-    <p>For more information on determining the size of your home's electrical service, visit:</p>
-    <a href="https://www.thespruce.com/electrical-service-size-of-my-home-1152752" target="_blank">The Spruce: Electrical Service Size of My Home</a>
+    <p>For more information on determining the size of your home's electrical service, please see:</p>
+    <a href="https://albertaev.ca/how-to-determine-your-main-breaker-size/" target="_blank">How to Determine Your Main Breaker Size</a>
     <br><br>
-    <button onclick="closeInfoPopup()">Close</button>
+    <button onclick="closeInfoPopup()" style="padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Close</button>
 </div>
+
 
 <script>
 function showInfoPopup() {
